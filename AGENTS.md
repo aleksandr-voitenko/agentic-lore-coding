@@ -1,4 +1,4 @@
-<!-- Agentic Lore Coding v5 -->
+<!-- Agentic Lore Coding v6 -->
 
 # General workflow
 
@@ -6,7 +6,7 @@
 
 This repository is developed through explicit, task-based changes.
 
-A task is an atomic unit of development effort. Each meaningful change should be traceable through the commit message that introduced it. Together, these commit messages form a historical knowledge tree for human developers and AI agents.
+A task is an atomic unit of development effort. Each meaningful change should be traceable through the commit message that introduced it. Together, these commit messages form a historical knowledge graph for human developers and AI agents.
 
 For nearly every meaningful line of code, it should be possible to use repository history to understand:
 
@@ -19,7 +19,7 @@ Generated files, vendored code, lockfiles, binary assets, and external snapshots
 
 ## Common principles
 
-Do not make unsupported guesses. If a requirement is blocking, risky, irreversible, or meaningfully ambiguous, ask the user before proceeding. If the ambiguity is minor and the likely answer is clear from the repository context, make a reasonable assumption, document it, and continue.
+Do not make unsupported guesses. If a requirement is blocking, risky, irreversible, or meaningfully ambiguous, ask the user before proceeding. If the ambiguity is minor and the likely answer is clear from repository context, make a reasonable assumption, document it, and continue.
 
 Start non-trivial work with research or planning. Turn vague input into a concrete implementation plan that is useful both as a human roadmap and as future historical context.
 
@@ -71,7 +71,7 @@ If exploration reveals that the original task is incomplete, misleading, or like
 Task commit messages must use this structure:
 
 ```text
-Title: concise but useful task title
+<Type>: concise task subject
 
 Links:
 - <commit> — <reason this commit is relevant>
@@ -86,36 +86,106 @@ Verification:
 ...
 ```
 
+The first line is the commit subject. It must start with a short task type followed by a concise description of the completed task.
+
 The `Links:` section is optional. Omit it only when no related historical commits are useful.
+
+The body must contain exactly these three mandatory sections:
+
+```text
+Context:
+Implementation:
+Verification:
+```
 
 Do not use Markdown headings starting with `#` inside commit messages, because Git may treat them as comments in commit editors.
 
-### Title
+## Task types
 
-The first line must be:
+Use one of these task types in the commit subject.
 
 ```text
-Title: concise but useful task title
+Feature:        Add a new user-visible or system-visible capability.
+Improvement:    Improve existing behavior without adding a distinct new capability.
+Bug fix:        Correct incorrect, broken, or unintended behavior.
+Refactor:       Restructure implementation without intended behavior changes.
+Revert:         Undo a previous change.
+Formatting:     Apply formatting-only changes with no intended behavior changes.
+Mechanical:     Apply minor mechanical changes with no intended behavior changes.
+Dependency:     Add, remove, or update dependencies.
+Database:       Change schema, migrations, indexes, backfills, or data shape.
+CI:             Change CI/CD, build pipelines, release automation, or checks.
+Test:           Add or update tests without changing production behavior.
+Docs:           Change documentation without changing product behavior.
+Security:       Improve security, privacy, permissions, or abuse resistance.
+Performance:    Improve speed, memory use, bundle size, latency, or scalability.
+Accessibility:  Improve accessibility behavior or semantics.
+Chore:          Perform repository maintenance that does not fit another type.
 ```
 
-The title should describe the completed task, preferably as a user-visible or system-visible outcome.
+Prefer the most specific accurate type. Use `Chore:` sparingly.
+
+When a task touches several categories, choose the type that best describes the primary purpose of the task, not incidental supporting work.
+
+Examples:
+
+```text
+Feature: Add timed yellow apples to Snake
+Improvement: Simplify the qualifying-score save form
+Bug fix: Prevent duplicate leaderboard submissions
+Refactor: Extract shared score-formatting helper
+Revert: Revert optimistic leaderboard saves
+Formatting: Format source files with the project formatter
+Mechanical: Rename generated route constants
+Dependency: Update Vite and related plugins
+Database: Add index for leaderboard score lookups
+CI: Add typecheck step to pull request workflow
+Test: Add regression tests for tied leaderboard scores
+Docs: Document the leaderboard scoring rules
+Security: Require CSRF token for score submission
+Performance: Reduce Snake board rerenders during movement
+Accessibility: Add accessible labels to Snake board cells
+Chore: Remove unused development script
+```
+
+Category selection examples:
+
+- If a feature requires a database migration, use `Feature:` unless the database change is the main purpose.
+- If a bug fix requires refactoring, use `Bug fix:`.
+- If a dependency update requires small compatibility edits, use `Dependency:`.
+- If a UI cleanup is unrelated to a feature, make it a separate `Improvement:` task.
+- If tests are added as part of a feature or bug fix, keep the feature or bug-fix type.
+- If only tests change, use `Test:`.
+- If formatting changes are mixed with behavior changes, split them into separate commits.
+
+## Commit message sections
+
+### Subject line
+
+The subject line must be:
+
+```text
+<Type>: concise task subject
+```
+
+The subject should describe the completed task, preferably as a user-visible or system-visible outcome.
 
 Good examples:
 
 ```text
-Title: Add timed yellow apples to Snake
-Title: Preserve draft comments after page refresh
-Title: Fix leaderboard sorting for tied scores
-Title: Add email validation to the signup form
+Feature: Add timed yellow apples to Snake
+Improvement: Preserve draft comments after page refresh
+Bug fix: Fix leaderboard sorting for tied scores
+Improvement: Add email validation to the signup form
 ```
 
 Weak examples:
 
 ```text
-Title: Update component
-Title: Change state
-Title: Fix bug
-Title: Refactor stuff
+Improvement: Update component
+Improvement: Change state
+Bug fix: Fix bug
+Refactor: Refactor stuff
 ```
 
 ### Links
@@ -233,9 +303,9 @@ If the user starts a task using this form:
 Start a new task: implement something useful
 ```
 
-use the text after `Start a new task:` to infer a draft task title.
+use the text after `Start a new task:` to infer a draft subject and task type.
 
-If the title, goal, or context is insufficient to plan the work, ask the user for the missing information. If the missing information is minor and the repository context strongly suggests the intended behavior, document the assumption and proceed.
+If the type, subject, goal, or context is insufficient to plan the work, ask the user for the missing information. If the missing information is minor and the repository context strongly suggests the intended behavior, document the assumption and proceed.
 
 ### Planning
 
@@ -284,10 +354,11 @@ Before writing it:
 
 1. Inspect the final diff.
 2. Review the current task context from the conversation.
-3. Review relevant historical commits for the `Links:` section.
-4. Identify the concrete behaviors added, changed, fixed, or intentionally preserved.
-5. Check which verification steps were actually performed.
-6. Make sure every important changed behavior has a matching verification item.
+3. Select the task type that best describes the primary purpose of the completed work.
+4. Review relevant historical commits for the `Links:` section.
+5. Identify the concrete behaviors added, changed, fixed, or intentionally preserved.
+6. Check which verification steps were actually performed.
+7. Make sure every important changed behavior has a matching verification item.
 
 The final task description should describe the completed task, not the entire conversation.
 
@@ -296,7 +367,7 @@ Do not include intermediate steps unless they explain an important decision, rej
 Use this final structure:
 
 ```text
-Title: ...
+<Type>: <concise task subject>
 
 Links:
 - <commit> — <reason>
@@ -315,63 +386,130 @@ Omit `Links:` only when no related historical commits are useful.
 
 ## Special task guidance
 
-### Bug fixes
+### Feature
 
-For bug fixes:
+Use `Feature:` for a new user-visible or system-visible capability.
 
-- `Context:` should explain the incorrect behavior, expected behavior, and cause if known.
-- `Implementation:` should explain how the fix addresses the cause.
-- `Verification:` should include a regression test when practical, or explain how the behavior was otherwise verified.
+The `Context:` section should explain the missing capability and why it is needed.
 
-### Refactors
+The `Implementation:` section should describe the new behavior and the main implementation pieces.
 
-For refactors:
+The `Verification:` section should cover the main success path and important edge cases.
 
-- `Context:` should explain why the refactor is useful.
-- `Implementation:` should state whether behavior is intended to remain unchanged.
-- `Verification:` should include tests or checks that support behavioral equivalence.
+### Improvement
 
-### Reverts
+Use `Improvement:` for improving existing behavior without adding a distinct new capability.
 
-For reverts:
+The `Context:` section should explain what was suboptimal and what better behavior is expected.
 
-- `Links:` should include the reverted commit.
-- `Context:` should explain why the revert is needed.
-- `Implementation:` should describe whether the revert is clean or required adjustments.
-- `Verification:` should describe how the restored behavior was checked.
+The `Implementation:` section should describe what changed and whether existing behavior was preserved.
 
-### Formatting-only or mechanical commits
+The `Verification:` section should cover the improved behavior and any important existing behavior that should still work.
 
-Formatting-only and mechanical commits should be rare and must not be mixed with behavior changes.
+### Bug fix
+
+Use `Bug fix:` for correcting incorrect, broken, or unintended behavior.
+
+The `Context:` section should explain the incorrect behavior, expected behavior, and cause if known.
+
+The `Implementation:` section should explain how the fix addresses the cause.
+
+The `Verification:` section should include a regression test when practical, or explain how the behavior was otherwise verified.
+
+### Refactor
+
+Use `Refactor:` for restructuring implementation without intended behavior changes.
+
+The `Context:` section should explain why the refactor is useful.
+
+The `Implementation:` section should state that no behavior change is intended.
+
+The `Verification:` section should include tests or checks that support behavioral equivalence.
+
+### Revert
+
+Use `Revert:` for undoing a previous change.
+
+The `Links:` section should include the reverted commit.
+
+The `Context:` section should explain why the revert is needed.
+
+The `Implementation:` section should describe whether the revert was clean or required adjustments.
+
+The `Verification:` section should describe how the restored behavior was checked.
+
+### Formatting and mechanical changes
+
+Use `Formatting:` for formatting-only changes.
+
+Use `Mechanical:` for minor mechanical changes such as codemods, generated-name normalization, simple file renames, or repetitive import/path updates with no intended behavior change.
+
+Formatting and mechanical commits should be rare and must not be mixed with behavior changes.
 
 If they affect many lines and reduce the usefulness of normal blame output, add the commit hash to `.git-blame-ignore-revs` when the repository uses that file.
 
-For these commits:
+The `Context:` section should explain why the change was necessary.
 
-- `Context:` should explain why the mechanical change was necessary.
-- `Implementation:` should state that no behavior change is intended.
-- `Verification:` should include appropriate formatting, linting, build, or test commands.
+The `Implementation:` section should state that no behavior change is intended.
 
-### Dependency updates
+The `Verification:` section should include appropriate formatting, linting, build, or test commands.
 
-For dependency updates:
+### Dependency
 
-- `Context:` should explain why the update is needed.
-- `Implementation:` should mention changed packages, migration work, configuration changes, and compatibility adjustments.
-- `Verification:` should prove that affected behavior still works.
+Use `Dependency:` for adding, removing, or updating dependencies.
 
-### Database or schema changes
+The `Context:` section should explain why the dependency change is needed.
 
-For database or schema changes:
+The `Implementation:` section should mention changed packages, migration work, configuration changes, and compatibility adjustments.
 
-- `Context:` should explain why the data shape needs to change.
-- `Implementation:` should mention migrations, schema changes, model changes, backfills, and compatibility behavior.
-- `Verification:` should cover migration, rollback, existing data, and new data where practical.
+The `Verification:` section should prove that affected behavior still works.
 
-### Test-only changes
+### Database
 
-For test-only changes:
+Use `Database:` for schema changes, migrations, indexes, backfills, or data-shape changes.
 
-- `Context:` should explain what risk, behavior, or regression the tests cover.
-- `Implementation:` should describe the new or updated tests.
-- `Verification:` should include the exact test command that was run.
+The `Context:` section should explain why the data shape needs to change.
+
+The `Implementation:` section should mention migrations, schema changes, model changes, backfills, and compatibility behavior.
+
+The `Verification:` section should cover migration, rollback, existing data, and new data where practical.
+
+### CI
+
+Use `CI:` for CI/CD workflows, release automation, build pipelines, and automated project checks.
+
+The `Context:` section should explain what pipeline behavior is missing or incorrect.
+
+The `Implementation:` section should describe the workflow, script, environment, or automation changes.
+
+The `Verification:` section should mention local command checks and, when available, the CI run or workflow result that verified the change.
+
+### Test
+
+Use `Test:` for test-only changes.
+
+The `Context:` section should explain what risk, behavior, or regression the tests cover.
+
+The `Implementation:` section should describe the new or updated tests.
+
+The `Verification:` section should include the exact test command that was run.
+
+### Docs
+
+Use `Docs:` for documentation-only changes.
+
+The `Context:` section should explain what information was missing, outdated, or unclear.
+
+The `Implementation:` section should summarize the documentation changes.
+
+The `Verification:` section should mention review steps, link checks, generated-doc checks, or state that no runtime behavior changed.
+
+### Security, performance, and accessibility
+
+Use `Security:`, `Performance:`, or `Accessibility:` when that concern is the primary purpose of the task.
+
+The `Context:` section should explain the risk, limitation, or user impact.
+
+The `Implementation:` section should describe the mitigation or improvement.
+
+The `Verification:` section should include behavior-specific checks, such as permission checks, abuse cases, performance measurements, accessibility interactions, or tool results.
