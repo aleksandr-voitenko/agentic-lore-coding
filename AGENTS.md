@@ -1,4 +1,4 @@
-<!-- Agentic Lore Coding v6 -->
+<!-- Agentic Lore Coding v7 -->
 
 # General workflow
 
@@ -114,9 +114,11 @@ Formatting:     Apply formatting-only changes with no intended behavior changes.
 Mechanical:     Apply minor mechanical changes with no intended behavior changes.
 Dependency:     Add, remove, or update dependencies.
 Database:       Change schema, migrations, indexes, backfills, or data shape.
-CI:             Change CI/CD, build pipelines, release automation, or checks.
+CI:             Change CI/CD workflows, release automation, or automated checks.
+Build:          Change build tooling, bundling, compilation, or build scripts.
 Test:           Add or update tests without changing production behavior.
 Docs:           Change documentation without changing product behavior.
+Config:         Change project, environment, tool, or runtime configuration.
 Security:       Improve security, privacy, permissions, or abuse resistance.
 Performance:    Improve speed, memory use, bundle size, latency, or scalability.
 Accessibility:  Improve accessibility behavior or semantics.
@@ -131,6 +133,7 @@ Examples:
 
 ```text
 Feature: Add timed yellow apples to Snake
+Improvement: Spawn yellow apples beside obstacle islands
 Improvement: Simplify the qualifying-score save form
 Bug fix: Prevent duplicate leaderboard submissions
 Refactor: Extract shared score-formatting helper
@@ -140,8 +143,10 @@ Mechanical: Rename generated route constants
 Dependency: Update Vite and related plugins
 Database: Add index for leaderboard score lookups
 CI: Add typecheck step to pull request workflow
+Build: Configure production bundle splitting
 Test: Add regression tests for tied leaderboard scores
 Docs: Document the leaderboard scoring rules
+Config: Add local development environment defaults
 Security: Require CSRF token for score submission
 Performance: Reduce Snake board rerenders during movement
 Accessibility: Add accessible labels to Snake board cells
@@ -236,28 +241,23 @@ For refactors, explicitly state whether behavior is intended to remain unchanged
 
 For cleanup work, explain why it was necessary for the task.
 
+Mention test files in `Implementation:` only as part of the changed code structure. Put detailed test coverage and test results in `Verification:`.
+
 ### Verification
 
 The `Verification:` section explains how the completed task was checked.
 
-Verification must be honest, concrete, and reproducible. Include exact commands where practical.
-
-General checks such as linting, typechecking, building, formatting, and smoke testing are useful, but they are not enough for behavior-changing tasks.
+Verification must be honest, concrete, reproducible, and behavior-specific.
 
 For each important behavior introduced, changed, fixed, or intentionally preserved, include at least one matching verification item.
 
-A good verification section should answer:
-
-- what behavior changed;
-- how it was checked;
-- which important edge cases were checked;
-- whether the check was automated, manual, or user-verified;
-- what was not verified, if anything.
+Prefer verification entries that describe observable behavior, not only commands.
 
 Weak example:
 
 ```text
 Verification:
+- Ran `npm test`.
 - Ran `npm run build`.
 - User verified the app.
 ```
@@ -266,28 +266,63 @@ Better example:
 
 ```text
 Verification:
-- Ran `npm run build`.
-- Manually verified that yellow apples appear while the game is running.
-- Manually verified that eating a yellow apple adds 2 points and grows the snake.
-- Manually verified that yellow apples disappear after their timeout when not eaten.
-- Manually verified that yellow apples do not overlap red apples.
-- Manually verified that active yellow apples are cleared after game over.
-- User verified the updated gameplay in the browser.
+- Added deterministic tests covering yellow apples spawning beside obstacle islands when a safe adjacent cell is available.
+- Added deterministic tests covering yellow apples falling back to generic placement when obstacle-adjacent cells are unsafe.
+- Added deterministic tests covering purple diamonds preserving generic timed-food placement near obstacle islands.
+- Ran `npm test`; all 18 tests passed, including the new timed-food placement cases.
 ```
 
-If something was not verified, say so clearly.
+If manual verification was performed, describe the specific behavior that was checked.
+
+Weak example:
+
+```text
+Verification:
+- Started the local dev server at `http://localhost:3000`.
+```
+
+Better example:
+
+```text
+Verification:
+- Manually verified in the browser that yellow apples can appear beside obstacle islands during gameplay.
+```
+
+Starting a local server is not meaningful verification by itself. Only mention it if a specific behavior was checked through the running app.
+
+Standard development checks are expected during development, but they should not be listed in every `Verification:` section when they pass.
+
+Standard development checks include:
+
+- linting;
+- typechecking;
+- building;
+- formatting checks;
+- `git diff --check`;
+- smoke-starting the local app;
+- checking that a local route returns HTTP 200.
+
+List standard development checks only when:
+
+- the task is specifically about that check, build step, formatter, CI behavior, or project setup;
+- the check is the only meaningful verification for a formatting, mechanical, dependency, CI, build, configuration, or infrastructure task;
+- the check failed and the failure affected the task;
+- the check was not run.
+
+If an expected standard check was not run, list it with a reason.
 
 Example:
 
 ```text
 Verification:
-- Ran `npm test`.
-- Manually verified that invalid login credentials show an error message.
-- Manually verified that valid login credentials redirect to the dashboard.
-- Not verified: password-reset email delivery, because the local environment does not have email service credentials.
+- Added deterministic tests covering tied-score leaderboard sorting.
+- Ran `npm test`; the leaderboard sorting tests passed.
+- Not run: browser verification, because the changed behavior is isolated to the tested sorting helper.
 ```
 
 Do not claim that tests, builds, migrations, browser checks, or user verification were performed unless they were actually performed.
+
+Do not use generic checks as a substitute for behavior-specific verification.
 
 ## Task workflow
 
@@ -359,6 +394,8 @@ Before writing it:
 5. Identify the concrete behaviors added, changed, fixed, or intentionally preserved.
 6. Check which verification steps were actually performed.
 7. Make sure every important changed behavior has a matching verification item.
+8. Omit routine development checks that passed unless they are directly relevant to the task type.
+9. Include expected checks that were not run, with reasons.
 
 The final task description should describe the completed task, not the entire conversation.
 
@@ -476,13 +513,23 @@ The `Verification:` section should cover migration, rollback, existing data, and
 
 ### CI
 
-Use `CI:` for CI/CD workflows, release automation, build pipelines, and automated project checks.
+Use `CI:` for CI/CD workflows, release automation, and automated project checks.
 
 The `Context:` section should explain what pipeline behavior is missing or incorrect.
 
 The `Implementation:` section should describe the workflow, script, environment, or automation changes.
 
 The `Verification:` section should mention local command checks and, when available, the CI run or workflow result that verified the change.
+
+### Build
+
+Use `Build:` for build tooling, bundling, compilation, or build-script changes.
+
+The `Context:` section should explain what build behavior is missing, broken, inefficient, or outdated.
+
+The `Implementation:` section should describe changes to build tools, scripts, compiler options, bundling, generated artifacts, or output behavior.
+
+The `Verification:` section should include the relevant build command and any behavior-specific checks for the produced output.
 
 ### Test
 
@@ -492,7 +539,7 @@ The `Context:` section should explain what risk, behavior, or regression the tes
 
 The `Implementation:` section should describe the new or updated tests.
 
-The `Verification:` section should include the exact test command that was run.
+The `Verification:` section should include the exact test command that was run and whether the new or updated tests passed.
 
 ### Docs
 
@@ -503,6 +550,16 @@ The `Context:` section should explain what information was missing, outdated, or
 The `Implementation:` section should summarize the documentation changes.
 
 The `Verification:` section should mention review steps, link checks, generated-doc checks, or state that no runtime behavior changed.
+
+### Config
+
+Use `Config:` for project, environment, tool, or runtime configuration changes.
+
+The `Context:` section should explain what configuration was missing, incorrect, noisy, or outdated.
+
+The `Implementation:` section should describe changed configuration files, defaults, environment behavior, or tool settings.
+
+The `Verification:` section should include checks proving that the affected tool, environment, or runtime behavior uses the new configuration.
 
 ### Security, performance, and accessibility
 
