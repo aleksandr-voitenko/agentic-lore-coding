@@ -1,30 +1,70 @@
-<!-- Agentic Lore Coding v9 -->
+<!-- Agentic Lore Coding v10 -->
 
 # Software development best practices
 
 ## Core principles
 
-Do not make unsupported guesses. 
+Do not make unsupported guesses.
 
 Ask the user when a requirement is blocking, risky, irreversible, or meaningfully ambiguous. If the ambiguity is minor and repository context strongly suggests the answer, make a reasonable assumption, document it, and continue.
 
 Start non-trivial work with research or planning. Turn vague input into a concrete implementation plan before writing code.
 
-Consider alternatives when a decision affects architecture, behavior, public APIs, data models, dependencies, performance, security, accessibility, or maintainability. Present trade-offs to the user when the choice is meaningful.
+Consider alternatives when a decision affects architecture, behavior, public APIs, data models, dependencies, performance, security, accessibility, deployment, tooling, or maintainability. Present trade-offs to the user when the choice is meaningful.
 
 Preserve existing behavior unless the task intentionally changes it. If behavior changes as a side effect, call it out and confirm with the user that it is intended.
 
-Keep changes atomic. Do not mix unrelated behavior changes, refactors, formatting, dependency updates, or UI cleanup in one task. If a cleanup or refactor is strictly necessary to safely implement the requested change, explicitly state why in your plan and proceed only if appropriate.
+Keep changes atomic. Do not mix unrelated behavior changes, refactors, formatting, dependency updates, generated-file updates, or UI cleanup in one task. If a cleanup, refactor, or generated-file update is strictly necessary to safely implement the requested change, explicitly state why in your plan and proceed only if appropriate.
 
 If a separate, unrelated issue is discovered, leave it unchanged but notify the user about it. Include the fix in the current task only when necessary to complete or verify the requested change safely.
 
+Prefer small, targeted changes. Minimize the footprint of a change and avoid plumbing new behavior through multiple layers when an existing abstraction, owner, or integration point can handle it cleanly.
+
+Do not bypass, remove, or alter environment checks, sandbox checks, feature gates, test guards, CI guards, or safety-related conditions unless the task explicitly requires it and the reason is understood and documented.
+
+## Repository instructions, tooling, and environment
+
+Follow repository-specific instructions before general preferences. Prefer existing project conventions over introducing new patterns.
+
+Before running repository instructions, ensure required local tools are available. Use the repository’s documented setup process when possible. If a required tool cannot be installed or used in the current environment, report the limitation instead of silently skipping the step.
+
+Do not assume that a command succeeded. Only claim that checks, builds, tests, migrations, code generation, browser checks, or manual verification were performed when they were actually executed and observed.
+
+Be patient with long-running build, test, dependency, or code-generation commands. Do not force-kill them prematurely unless they are clearly hung, unsafe, or blocking progress. If a command times out or is interrupted, report that accurately.
+
+When changing dependencies, schemas, generated files, lockfiles, snapshots, or configuration-derived artifacts, update all associated files required by the repository. Keep those updates in the same change when they are a direct consequence of the task.
+
+When adding files that are read at build time, runtime, or test time, make sure the project’s build system, packaging configuration, test fixtures, manifests, or deployment configuration include them as needed.
+
 ## Architecture, deployment, and feature management
 
-Ensure all database migrations, data model updates, and API changes are backward compatible to allow for safe, zero-downtime deployments. 
+Ensure all database migrations, data model updates, and API changes are backward compatible to allow for safe, zero-downtime deployments.
 
-Use feature flags or toggles for incomplete, large, or risky new features. This allows code to be merged into the main branch safely without exposing unfinished behavior in production.
+Use feature flags or toggles for incomplete, large, risky, or behavior-changing new features. This allows code to be merged into the main branch safely without exposing unfinished behavior in production.
 
-For any significant architectural, technical, or dependency change, draft an Architectural Decision Record (ADR) outlining the context, alternatives considered, and the final decision. Present this to the user for review before proceeding.
+For any significant architectural, technical, dependency, deployment, or public API change, draft an Architectural Decision Record (ADR) outlining the context, alternatives considered, trade-offs, and the final decision. Present this to the user for review before proceeding.
+
+Prefer explicit boundaries between modules, packages, services, or layers. Keep public interfaces intentional, minimal, and documented.
+
+Prefer private implementation details and explicitly exported public APIs. Do not expose internal helpers, types, endpoints, or modules unless they are part of the intended contract.
+
+Avoid growing already-large or high-touch modules when adding new functionality. Prefer introducing a cohesive new module or file when that keeps responsibilities clearer. When extracting code, move related tests, documentation, and invariants close to the new implementation.
+
+## API and interface design
+
+Design APIs so call sites are easy to understand.
+
+Avoid boolean flags, ambiguous `null` or `None` values, positional mode arguments, magic strings, and unexplained numeric literals when they make call sites hard to read. Prefer named options, enums, configuration objects, builder methods, small value types, or clearer method names when they improve readability.
+
+When an existing API requires opaque positional arguments and the API cannot reasonably be changed, add local clarity at the call site using comments, named constants, or equivalent conventions.
+
+Make state handling exhaustive where practical. Avoid catch-all or wildcard branches when the set of states is known and handling each case explicitly would make behavior safer or clearer.
+
+For public interfaces, extension points, protocols, traits, abstract classes, hooks, callbacks, or plugin APIs, include documentation that explains their role, expected behavior, ownership rules, lifecycle, and implementation requirements.
+
+For asynchronous or concurrent APIs, make important contracts explicit. Document or encode expectations around cancellation, ordering, retries, timeouts, thread safety, idempotency, resource ownership, and error propagation when they matter.
+
+When adding or changing an API, update relevant documentation, examples, schemas, generated clients, migration guides, and integration tests where applicable.
 
 ## Code quality
 
@@ -32,15 +72,30 @@ Prefer clear, maintainable code over clever code.
 
 Use names that describe behavior or intent and align with the surrounding codebase vocabulary.
 
-Avoid unnecessary abstractions. Add abstractions only when they reduce duplication, clarify intent, or make future changes safer.
+Avoid unnecessary abstractions. Add abstractions only when they reduce duplication, clarify intent, improve testability, isolate meaningful domain concepts, or make future changes safer.
+
+Do not create small helper functions, methods, classes, or modules that are referenced only once unless they meaningfully improve readability, isolate complexity, or preserve a clear boundary.
 
 Keep implementation details local when possible. Avoid large rewrites unless explicitly required by the task.
 
-Follow the Boy Scout Rule: leave the code better than you found it. While respecting the rule of atomic commits, always update outdated inline documentation, docstrings, or comments when modifying a function to ensure long-term codebase health. Do not leave obsolete comments behind.
+Prefer existing abstractions and ownership boundaries over introducing parallel mechanisms. When a subsystem already has a central manager, adapter, registry, or integration point, use it instead of duplicating responsibility elsewhere.
 
-Implement graceful error handling. Do not swallow exceptions silently, and ensure errors are logged with sufficient context to make debugging easier in production.
+Simplify control flow where doing so improves readability. Collapse unnecessary nesting, return early when appropriate, and avoid redundant branches.
+
+Use idiomatic language features for formatting, mapping, iteration, resource management, and error handling. Prefer direct method or function references over trivial closures when that is clearer.
+
+Prefer comparing complete values or meaningful structured outputs in tests instead of asserting many individual fields one by one, unless field-level assertions produce clearer failure messages.
+
+Follow the Boy Scout Rule: leave the code better than you found it. While respecting the rule of atomic commits, update outdated inline documentation, docstrings, comments, and nearby examples when modifying related code. Do not leave obsolete comments behind.
+
+Implement graceful error handling. Do not swallow exceptions silently, and ensure errors are logged or surfaced with sufficient context to make debugging easier in production.
 
 For refactors, behavior should remain strictly unchanged unless the task explicitly says otherwise.
+
+## Maintainability
+Keep tests, fixtures, examples, and documentation close to the behavior they describe when the repository structure allows it.
+
+Avoid adding new functionality to files that are already large, central, or frequently changed unless there is a strong reason. Prefer cohesive extraction or a new module when it improves maintainability without causing an unnecessary rewrite.
 
 ## Formatting and mechanical changes
 
@@ -48,9 +103,11 @@ Keep formatting-only and mechanical changes separate from behavior changes.
 
 Formatting-only commits should contain no intended behavior changes.
 
-Mechanical commits may include codemods, generated-name normalization, simple file renames, repetitive import updates, or repetitive path updates with no intended behavior change.
+Mechanical commits may include codemods, generated-name normalization, simple file renames, repetitive import updates, repetitive path updates, or generated-file refreshes with no intended behavior change.
 
 If formatting or mechanical changes affect many lines and reduce useful blame history, add the commit hash to `.git-blame-ignore-revs` when the repository uses that file.
+
+Prefer repository-standard formatting, linting, naming, import ordering, and file organization. Do not introduce a new style unless the task is specifically about changing style.
 
 ## Testing and verification
 
@@ -60,17 +117,23 @@ For each important behavior introduced, changed, fixed, or intentionally preserv
 
 Prefer automated tests when the project structure supports them.
 
-Use deterministic tests for randomness, timers, generated data, and asynchronous behavior when practical.
+Use deterministic tests for randomness, timers, generated data, concurrency, retries, and asynchronous behavior when practical.
 
 For UI changes, verify the specific screen, state, and interaction that changed.
 
-For API or data-model changes, verify relevant request, response, migration, compatibility, and error behavior.
+For API or data-model changes, verify relevant request, response, migration, compatibility, documentation, generated schema/client, and error behavior.
 
-For accessibility changes, verify relevant focus, keyboard, semantic, label, or screen-reader-visible behavior.
+For accessibility changes, verify relevant focus, keyboard, semantic, label, contrast, reduced-motion, or screen-reader-visible behavior.
 
 For performance changes, include measurements or before-and-after evidence when practical.
 
+For configuration changes, verify defaults, overrides, invalid values, schema updates, documentation, and backward compatibility where applicable.
+
+For dependency changes, verify that lockfiles, generated dependency metadata, build-system files, vulnerability considerations, and compatibility constraints are updated where applicable.
+
 Do not claim that tests, builds, migrations, browser checks, or user verification were performed unless you have actually executed and observed them.
+
+When a test or check cannot be run because of the local environment, missing tools, sandbox restrictions, time constraints, or external service limitations, say so clearly and explain the impact.
 
 ## Standard development checks
 
@@ -82,6 +145,8 @@ Examples:
 - typechecking;
 - building;
 - formatting checks;
+- dependency or lockfile checks;
+- generated-file consistency checks;
 - `git diff --check`;
 - smoke-starting the local app;
 - checking that a local route returns HTTP 200.
@@ -90,7 +155,7 @@ Do not list standard checks in every task description when they pass.
 
 List standard checks only when:
 
-- the task is specifically about that check, build step, formatter, CI behavior, or project setup;
+- the task is specifically about that check, build step, formatter, CI behavior, dependency setup, code generation, or project setup;
 - the check is the only meaningful verification for the task;
 - the check failed and affected the task;
 - the check was expected but was not run.
@@ -99,12 +164,15 @@ If an expected standard check was not run, list it with a reason.
 
 Starting a local server is not meaningful verification by itself. Mention it only when a specific behavior was checked through the running app.
 
+## Documentation
 
+Keep user-facing, developer-facing, and generated documentation aligned with code changes.
 
+When changing behavior, APIs, configuration, data models, permissions, feature flags, deployment assumptions, or operational workflows, update the relevant documentation in the same task when applicable.
 
+Document non-obvious decisions close to the code they affect. Prefer concise comments that explain why something exists rather than restating what the code does.
 
-
-
+When adding new modules, services, abstractions, or extension points, document their purpose and the expectations for future maintainers.
 
 
 
