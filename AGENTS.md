@@ -1,4 +1,4 @@
-<!-- Agentic Lore Coding v10 -->
+<!-- Agentic Lore Coding v11 -->
 
 # Software development best practices
 
@@ -665,3 +665,110 @@ The `Context:` section should explain the risk, limitation, or user impact.
 The `Implementation:` section should describe the mitigation or improvement.
 
 The `Verification:` section should include behavior-specific checks, such as permission checks, abuse cases, performance measurements, accessibility interactions, or tool results.
+
+# Project memory management
+
+## Purpose
+
+Use project memory to reduce repeated rediscovery at the start of each new conversation.
+
+`README.md` and `MEMORY.md` have different audiences:
+
+- `README.md` is for humans using, running, building, or deploying the project.
+- `MEMORY.md` is for AI agents and human maintainers who need compact project context before reading detailed task history.
+
+Do not turn `README.md` into an agent scratchpad.
+
+Do not turn `MEMORY.md` into a chronological task log. Git history and commit messages already serve that purpose.
+
+## README.md
+
+`README.md` should contain public, human-facing project information:
+
+- short project description;
+- user-facing features;
+- tech stack when useful;
+- installation instructions;
+- development commands;
+- build commands;
+- test commands;
+- deployment notes;
+- important environment variables;
+- persistent storage notes;
+- links to other documentation when useful.
+
+Keep `README.md` understandable without requiring knowledge of the internal task workflow.
+
+Avoid long internal file maps in `README.md` unless they are genuinely useful to human contributors.
+
+## MEMORY.md
+
+`MEMORY.md` should contain compact, durable project context useful to agents.
+
+Good `MEMORY.md` content includes:
+
+- current high-level architecture;
+- important source directories and ownership boundaries;
+- reusable implementation patterns;
+- testing strategy and deterministic test helpers;
+- non-obvious constraints or invariants;
+- known integration points;
+- deployment/runtime assumptions that affect implementation;
+- project-specific naming conventions;
+- recurring pitfalls;
+- decisions that are still relevant across many future tasks.
+
+Poor `MEMORY.md` content includes:
+
+- per-task progress logs;
+- temporary debugging notes;
+- generic software advice;
+- information already obvious from file names;
+- long copied commit messages;
+- stale details that no longer describe the project.
+
+`MEMORY.md` should stay around 250 lines. If it grows beyond that, compact it during task finalization.
+
+When compacting `MEMORY.md`, preserve durable architecture, constraints, conventions, and current implementation patterns. Remove stale details, duplicate wording, and task-specific history.
+
+## Reading order
+
+At the start of a new task, read project context in this order:
+
+1. `MEMORY.md`, if it exists.
+2. `README.md`.
+3. Relevant source files.
+4. Relevant git history and task commit messages.
+
+Read `MEMORY.md` before exploring git history so the project shape is clear before following detailed historical links.
+
+If `MEMORY.md` conflicts with source code or recent task history, trust the source code and recent task history. Update `MEMORY.md` during finalization if the conflict matters.
+
+## Updating README.md and MEMORY.md
+
+When finalizing a task, review whether `README.md` or `MEMORY.md` should change.
+
+Update `README.md` when the task changes:
+
+- user-facing features;
+- setup, build, run, or test commands;
+- deployment behavior;
+- environment variables;
+- storage requirements;
+- public project description.
+
+Update `MEMORY.md` when the task changes:
+
+- architecture;
+- source ownership boundaries;
+- reusable implementation patterns;
+- testing strategy;
+- durable constraints or invariants;
+- important integration behavior;
+- recurring pitfalls.
+
+Do not update either file just to mention that a normal task happened.
+
+If `README.md` or `MEMORY.md` is updated, mention that in the task `Implementation:` section.
+
+If reviewing them reveals no needed changes, do not mention that in the commit message unless the user explicitly asked for documentation or memory updates.
