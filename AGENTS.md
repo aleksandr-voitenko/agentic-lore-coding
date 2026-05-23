@@ -1,4 +1,4 @@
-<!-- Agentic Lore Coding v11 -->
+<!-- Agentic Lore Coding v12 -->
 
 # Software development best practices
 
@@ -10,85 +10,69 @@ Ask the user when a requirement is blocking, risky, irreversible, or meaningfull
 
 Start non-trivial work with research or planning. Turn vague input into a concrete implementation plan before writing code.
 
-Consider alternatives when a decision affects architecture, behavior, public APIs, data models, dependencies, performance, security, accessibility, deployment, tooling, or maintainability. Present trade-offs to the user when the choice is meaningful.
+Consider alternatives when a decision affects architecture, behavior, public APIs, data models, dependencies, performance, security, accessibility, deployment, tooling, or maintainability. Present trade-offs when the choice is meaningful.
 
-Preserve existing behavior unless the task intentionally changes it. If behavior changes as a side effect, call it out and confirm with the user that it is intended.
+Preserve existing behavior unless the task intentionally changes it. If behavior changes as a side effect, call it out and confirm that it is intended.
 
-Keep changes atomic. Do not mix unrelated behavior changes, refactors, formatting, dependency updates, generated-file updates, or UI cleanup in one task. If a cleanup, refactor, or generated-file update is strictly necessary to safely implement the requested change, explicitly state why in your plan and proceed only if appropriate.
+Keep changes atomic. Do not mix unrelated behavior changes, refactors, formatting, dependency updates, generated-file updates, or UI cleanup in one task.
 
-If a separate, unrelated issue is discovered, leave it unchanged but notify the user about it. Include the fix in the current task only when necessary to complete or verify the requested change safely.
+If a separate unrelated issue is discovered, leave it unchanged and notify the user. Include it in the current task only when necessary to complete or verify the requested change safely.
 
-Prefer small, targeted changes. Minimize the footprint of a change and avoid plumbing new behavior through multiple layers when an existing abstraction, owner, or integration point can handle it cleanly.
+Prefer small, targeted changes. Minimize the footprint of a change and use existing abstractions, owners, or integration points when they fit cleanly.
 
 Do not bypass, remove, or alter environment checks, sandbox checks, feature gates, test guards, CI guards, or safety-related conditions unless the task explicitly requires it and the reason is understood and documented.
 
-## Repository instructions, tooling, and environment
+## Repository, tooling, and environment
 
 Follow repository-specific instructions before general preferences. Prefer existing project conventions over introducing new patterns.
 
-Before running repository instructions, ensure required local tools are available. Use the repository’s documented setup process when possible. If a required tool cannot be installed or used in the current environment, report the limitation instead of silently skipping the step.
+Before running repository instructions, ensure required local tools are available. Use the documented setup process when possible. If a required tool cannot be installed or used, report the limitation instead of silently skipping the step.
 
 Do not assume that a command succeeded. Only claim that checks, builds, tests, migrations, code generation, browser checks, or manual verification were performed when they were actually executed and observed.
 
-Be patient with long-running build, test, dependency, or code-generation commands. Do not force-kill them prematurely unless they are clearly hung, unsafe, or blocking progress. If a command times out or is interrupted, report that accurately.
+Be patient with long-running build, test, dependency, or code-generation commands. Do not stop them prematurely unless they are clearly hung, unsafe, or blocking progress. If a command times out or is interrupted, report that accurately.
 
-When changing dependencies, schemas, generated files, lockfiles, snapshots, or configuration-derived artifacts, update all associated files required by the repository. Keep those updates in the same change when they are a direct consequence of the task.
+When changing dependencies, schemas, generated files, lockfiles, snapshots, configuration-derived artifacts, or files loaded at build/runtime/test time, update all associated repository files required by that change.
 
-When adding files that are read at build time, runtime, or test time, make sure the project’s build system, packaging configuration, test fixtures, manifests, or deployment configuration include them as needed.
+## Architecture and interfaces
 
-## Architecture, deployment, and feature management
+Ensure database migrations, data model updates, and API changes are backward compatible when zero-downtime deployment matters.
 
-Ensure all database migrations, data model updates, and API changes are backward compatible to allow for safe, zero-downtime deployments.
+Use feature flags or toggles for incomplete, large, risky, or behavior-changing features that need to merge safely before being exposed.
 
-Use feature flags or toggles for incomplete, large, risky, or behavior-changing new features. This allows code to be merged into the main branch safely without exposing unfinished behavior in production.
+For significant architectural, dependency, deployment, or public API changes, draft an ADR with context, alternatives, trade-offs, and the final decision. Present it to the user before proceeding.
 
-For any significant architectural, technical, dependency, deployment, or public API change, draft an Architectural Decision Record (ADR) outlining the context, alternatives considered, trade-offs, and the final decision. Present this to the user for review before proceeding.
+Keep module, package, service, and layer boundaries explicit. Prefer intentional, minimal, documented public interfaces and private implementation details.
 
-Prefer explicit boundaries between modules, packages, services, or layers. Keep public interfaces intentional, minimal, and documented.
+Avoid growing already-large or high-touch modules. Prefer cohesive extraction or a new module when it keeps responsibilities clearer without causing an unnecessary rewrite.
 
-Prefer private implementation details and explicitly exported public APIs. Do not expose internal helpers, types, endpoints, or modules unless they are part of the intended contract.
+Design APIs so call sites are easy to understand. Avoid unclear boolean flags, ambiguous `null` or `None` values, positional mode arguments, magic strings, and unexplained numeric literals when clearer options are practical.
 
-Avoid growing already-large or high-touch modules when adding new functionality. Prefer introducing a cohesive new module or file when that keeps responsibilities clearer. When extracting code, move related tests, documentation, and invariants close to the new implementation.
+Make known state handling exhaustive where practical. Avoid catch-all branches when explicit cases would be safer or clearer.
 
-## API and interface design
-
-Design APIs so call sites are easy to understand.
-
-Avoid boolean flags, ambiguous `null` or `None` values, positional mode arguments, magic strings, and unexplained numeric literals when they make call sites hard to read. Prefer named options, enums, configuration objects, builder methods, small value types, or clearer method names when they improve readability.
-
-When an existing API requires opaque positional arguments and the API cannot reasonably be changed, add local clarity at the call site using comments, named constants, or equivalent conventions.
-
-Make state handling exhaustive where practical. Avoid catch-all or wildcard branches when the set of states is known and handling each case explicitly would make behavior safer or clearer.
-
-For public interfaces, extension points, protocols, traits, abstract classes, hooks, callbacks, or plugin APIs, include documentation that explains their role, expected behavior, ownership rules, lifecycle, and implementation requirements.
-
-For asynchronous or concurrent APIs, make important contracts explicit. Document or encode expectations around cancellation, ordering, retries, timeouts, thread safety, idempotency, resource ownership, and error propagation when they matter.
-
-When adding or changing an API, update relevant documentation, examples, schemas, generated clients, migration guides, and integration tests where applicable.
+For asynchronous or concurrent APIs, make contracts around cancellation, ordering, retries, timeouts, thread safety, idempotency, resource ownership, and error propagation explicit when they matter.
 
 ## Code quality
 
 Prefer clear, maintainable code over clever code.
 
-Use names that describe behavior or intent and align with the surrounding codebase vocabulary.
+Use names that describe behavior or intent and align with surrounding codebase vocabulary.
 
-Avoid unnecessary abstractions. Add abstractions only when they reduce duplication, clarify intent, improve testability, isolate meaningful domain concepts, or make future changes safer.
+Avoid unnecessary abstractions. Add abstractions when they reduce duplication, clarify intent, improve testability, isolate meaningful domain concepts, or make future changes safer.
 
-Do not create small helper functions, methods, classes, or modules that are referenced only once unless they meaningfully improve readability, isolate complexity, or preserve a clear boundary.
+Do not create small helpers referenced only once unless they meaningfully improve readability, isolate complexity, or preserve a clear boundary.
 
-Keep implementation details local when possible. Avoid large rewrites unless explicitly required by the task.
+Keep implementation details local when possible. Avoid large rewrites unless required by the task.
 
-Prefer existing abstractions and ownership boundaries over introducing parallel mechanisms. When a subsystem already has a central manager, adapter, registry, or integration point, use it instead of duplicating responsibility elsewhere.
+Prefer existing abstractions and ownership boundaries over parallel mechanisms.
 
-Simplify control flow where doing so improves readability. Collapse unnecessary nesting, return early when appropriate, and avoid redundant branches.
+Simplify control flow when it improves readability. Use idiomatic language features for formatting, mapping, iteration, resource management, and error handling.
 
-Use idiomatic language features for formatting, mapping, iteration, resource management, and error handling. Prefer direct method or function references over trivial closures when that is clearer.
+Prefer comparing complete values or meaningful structured outputs in tests instead of asserting many fields one by one, unless field-level assertions produce clearer failures.
 
-Prefer comparing complete values or meaningful structured outputs in tests instead of asserting many individual fields one by one, unless field-level assertions produce clearer failure messages.
+Update nearby obsolete comments, docstrings, examples, or inline documentation when modifying related code, while preserving atomic task scope.
 
-Follow the Boy Scout Rule: leave the code better than you found it. While respecting the rule of atomic commits, update outdated inline documentation, docstrings, comments, and nearby examples when modifying related code. Do not leave obsolete comments behind.
-
-Implement graceful error handling. Do not swallow exceptions silently, and ensure errors are logged or surfaced with sufficient context to make debugging easier in production.
+Handle errors gracefully. Do not swallow exceptions silently; surface or log enough context for debugging.
 
 For refactors, behavior should remain strictly unchanged unless the task explicitly says otherwise.
 
@@ -103,7 +87,7 @@ Keep formatting-only and mechanical changes separate from behavior changes.
 
 Formatting-only commits should contain no intended behavior changes.
 
-Mechanical commits may include codemods, generated-name normalization, simple file renames, repetitive import updates, repetitive path updates, or generated-file refreshes with no intended behavior change.
+Mechanical commits may include codemods, generated-name normalization, simple file renames, repetitive import/path updates, or generated-file refreshes with no intended behavior change.
 
 If formatting or mechanical changes affect many lines and reduce useful blame history, add the commit hash to `.git-blame-ignore-revs` when the repository uses that file.
 
@@ -127,35 +111,23 @@ For accessibility changes, verify relevant focus, keyboard, semantic, label, con
 
 For performance changes, include measurements or before-and-after evidence when practical.
 
-For configuration changes, verify defaults, overrides, invalid values, schema updates, documentation, and backward compatibility where applicable.
+For configuration and dependency changes, verify affected defaults, overrides, schemas, lockfiles, generated metadata, build files, compatibility constraints, and documentation when applicable.
 
-For dependency changes, verify that lockfiles, generated dependency metadata, build-system files, vulnerability considerations, and compatibility constraints are updated where applicable.
+Do not claim that tests, builds, migrations, browser checks, or user verification were performed unless they were actually executed and observed.
 
-Do not claim that tests, builds, migrations, browser checks, or user verification were performed unless you have actually executed and observed them.
-
-When a test or check cannot be run because of the local environment, missing tools, sandbox restrictions, time constraints, or external service limitations, say so clearly and explain the impact.
+When a check cannot be run because of local environment, missing tools, sandbox restrictions, time constraints, or external services, say so clearly and explain the impact.
 
 ## Standard development checks
 
 Standard development checks are expected during development, but they are not a substitute for behavior-specific verification.
 
-Examples:
-
-- linting;
-- typechecking;
-- building;
-- formatting checks;
-- dependency or lockfile checks;
-- generated-file consistency checks;
-- `git diff --check`;
-- smoke-starting the local app;
-- checking that a local route returns HTTP 200.
+Examples include linting, typechecking, building, formatting checks, dependency or lockfile checks, generated-file consistency checks, `git diff --check`, smoke-starting the local app, and checking that a local route returns HTTP 200.
 
 Do not list standard checks in every task description when they pass.
 
 List standard checks only when:
 
-- the task is specifically about that check, build step, formatter, CI behavior, dependency setup, code generation, or project setup;
+- the task is about that check, build step, formatter, CI behavior, dependency setup, code generation, or project setup;
 - the check is the only meaningful verification for the task;
 - the check failed and affected the task;
 - the check was expected but was not run.
@@ -168,14 +140,9 @@ Starting a local server is not meaningful verification by itself. Mention it onl
 
 Keep user-facing, developer-facing, and generated documentation aligned with code changes.
 
-When changing behavior, APIs, configuration, data models, permissions, feature flags, deployment assumptions, or operational workflows, update the relevant documentation in the same task when applicable.
+When changing behavior, APIs, configuration, data models, permissions, feature flags, deployment assumptions, or operational workflows, update relevant documentation in the same task when applicable.
 
 Document non-obvious decisions close to the code they affect. Prefer concise comments that explain why something exists rather than restating what the code does.
-
-When adding new modules, services, abstractions, or extension points, document their purpose and the expectations for future maintainers.
-
-
-
 
 # Task-based workflow
 
@@ -187,12 +154,7 @@ A task is an atomic unit of development effort. Each meaningful change should be
 
 Together, task commit messages form a historical knowledge graph for human developers and AI agents.
 
-For nearly every meaningful line of code, repository history should explain:
-
-- why the code exists;
-- what task introduced or changed it;
-- which related commits provide useful context;
-- how the behavior was verified.
+For nearly every meaningful line of code, repository history should explain why the code exists, what task introduced or changed it, which related commits provide context, and how the behavior was verified.
 
 Generated files, vendored code, lockfiles, binary assets, and external snapshots may be exceptions, but their changes should still be explained when they are part of a task.
 
@@ -256,7 +218,7 @@ The first line is the commit subject. It must start with a task type followed by
 
 The `Links:` section is optional. Omit it only when no related historical commits are useful.
 
-The body must contain exactly these three mandatory sections:
+The body must contain exactly these mandatory sections:
 
 ```text
 Context:
@@ -270,46 +232,48 @@ Do not use Markdown headings starting with `#` inside commit messages, because G
 
 Use the type that best describes the primary purpose of the task.
 
+Allowed types:
+
 ```text
-Feature:        Add a new user-visible or system-visible capability.
-Improvement:    Improve existing behavior without adding a distinct new capability.
-Bug fix:        Correct incorrect, broken, or unintended behavior.
-Refactor:       Restructure implementation without intended behavior changes.
-Revert:         Undo a previous change.
-Formatting:     Apply formatting-only changes with no intended behavior changes.
-Mechanical:     Apply minor mechanical changes with no intended behavior changes.
-Dependency:     Add, remove, or update dependencies.
-Database:       Change schema, migrations, indexes, backfills, or data shape.
-CI:             Change CI/CD workflows, release automation, or automated checks.
-Build:          Change build tooling, bundling, compilation, or build scripts.
-Test:           Add or update tests without changing production behavior.
-Docs:           Change documentation without changing product behavior.
-Config:         Change project, environment, tool, or runtime configuration.
-Security:       Improve security, privacy, permissions, or abuse resistance.
-Performance:    Improve speed, memory use, bundle size, latency, or scalability.
-Accessibility:  Improve accessibility behavior or semantics.
-Chore:          Perform repository maintenance that does not fit another type.
+Feature        New user-visible or system-visible capability
+Improvement    Better existing behavior without a distinct new capability
+Bug fix        Correction of broken, incorrect, or unintended behavior
+Refactor       Implementation restructuring with no intended behavior change
+Revert         Undoing a previous change
+Formatting     Formatting-only change
+Mechanical     Minor mechanical change with no intended behavior change
+Dependency     Dependency addition, removal, or update
+Database       Schema, migration, index, backfill, or data-shape change
+CI             CI/CD, release automation, or automated checks
+Build          Build tooling, bundling, compilation, or build scripts
+Test           Test-only change
+Docs           Documentation-only change
+Config         Project, environment, tool, or runtime configuration
+Security       Security, privacy, permissions, or abuse resistance
+Performance    Speed, memory, bundle size, latency, or scalability
+Accessibility  Accessibility behavior or semantics
+Chore          Repository maintenance that does not fit another type
 ```
 
 Prefer the most specific accurate type. Use `Chore:` sparingly.
 
 When a task touches several categories, choose the type that describes the primary purpose, not incidental supporting work.
 
-Examples of type selection:
+Selection rules:
 
-- If a feature requires a database migration, use `Feature:` unless the database change is the main purpose.
-- If a bug fix requires refactoring, use `Bug fix:`.
-- If a dependency update requires small compatibility edits, use `Dependency:`.
-- If a UI cleanup is unrelated to a feature, make it a separate `Improvement:` task.
-- If tests are added as part of a feature or bug fix, keep the feature or bug-fix type.
-- If only tests change, use `Test:`.
-- If formatting changes are mixed with behavior changes, split them into separate commits.
+- feature with supporting database work → `Feature:`;
+- bug fix with supporting refactor → `Bug fix:`;
+- dependency update with compatibility edits → `Dependency:`;
+- tests added as part of a feature or bug fix → keep the feature or bug-fix type;
+- tests-only change → `Test:`;
+- unrelated UI cleanup during a feature → separate `Improvement:` task;
+- formatting mixed with behavior changes → split into separate commits.
 
 ## Commit message sections
 
 ### Subject
 
-The subject line must be:
+Use this form:
 
 ```text
 <Type>: concise task subject
@@ -317,15 +281,16 @@ The subject line must be:
 
 The subject should describe the completed task, preferably as a user-visible or system-visible outcome.
 
-Good examples:
+Good:
 
 ```text
 Feature: Add timed yellow apples to Snake
+Improvement: Center Tetris next-piece preview
 Bug fix: Prevent duplicate leaderboard submissions
 Refactor: Extract shared score-formatting helper
 ```
 
-Weak examples:
+Weak:
 
 ```text
 Improvement: Update component
@@ -343,22 +308,35 @@ Include commits that introduced or significantly changed relevant behavior, data
 
 Do not include every blamed commit mechanically if doing so would create noise.
 
-Example:
-
-```text
-Links:
-- e876f30f26473edad0e21384fa7e5e8f91bfb2f1 — introduced the profile page structure extended by this task
-- 7f5ef1510dd84282344d662055b2b92496013d55 — added the ranking field used by this task
-- 93ff88bf7320dc9487f303951ce7f6bf35939e38 — added obstacle generation that must avoid the initial food and starting path
-```
-
 ### Context
 
 The `Context:` section explains why the task exists.
 
-Describe the relevant current state, the problem or opportunity, and the desired outcome.
+Focus on:
 
-Include important constraints, assumptions, external references, and alternatives considered when they help a future reader understand the decision.
+- current state;
+- problem or opportunity;
+- desired behavior or outcome;
+- important constraints;
+- assumptions or alternatives only when they clarify the decision.
+
+Keep implementation details out of `Context:` unless they are necessary to explain a constraint or rejected direction.
+
+Good:
+
+```text
+Context:
+The Tetris sidebar preview rendered the next tetromino inside a visible 4x4 grid using the tetromino's source coordinates. That made most next pieces appear aligned toward the top-left of the preview box, and the empty grid cells made odd- and even-sized pieces feel inconsistently placed.
+
+The desired behavior is for the next-piece preview to look visually centered while preserving the existing tetromino definitions and gameplay behavior.
+```
+
+Weak:
+
+```text
+Context:
+Updated `src/components/tetris-game.tsx` to compute a bounding box and absolutely position preview cells.
+```
 
 For bug fixes, explain the incorrect behavior, expected behavior, and cause if known.
 
@@ -373,6 +351,19 @@ The `Implementation:` section explains what changed.
 Mention important files, components, classes, functions, migrations, configuration changes, API changes, dependency changes, and tests when relevant.
 
 Be specific enough that a future reader can understand the solution without reading the full diff. Do not duplicate the diff line by line.
+
+Implementation may include design rationale when it explains why the chosen implementation layer or approach matters.
+
+Good:
+
+```text
+Implementation:
+Updated `src/components/tetris-game.tsx` so the next-piece preview computes the bounding box of the current next tetromino, normalizes its cells to that local box, and positions the four rendered blocks around the center of the preview square.
+
+Kept the change local to the sidebar preview instead of changing `getTetrominoPreviewCells`, because the piece definitions were already correct and only the presentation needed different positioning.
+
+Replaced the rendered 16-cell preview grid with a plain `var(--tetris-board)` background and four absolutely positioned tetromino-colored blocks. The preview keeps the existing accessible label and reuses tetromino color classes while removing empty placeholder cells from the preview surface.
+```
 
 For behavior changes, describe the new behavior.
 
@@ -435,7 +426,7 @@ Start a new task: implement something useful
 
 use the text after `Start a new task:` to infer a draft subject and task type.
 
-If the type, subject, goal, or context is insufficient to plan the work, ask for the missing information unless the repository context makes a safe assumption clear.
+If the type, subject, goal, or context is insufficient to plan the work, ask for the missing information unless repository context makes a safe assumption clear.
 
 ### Planning
 
@@ -443,7 +434,7 @@ Before editing code:
 
 1. Inspect the current implementation.
 2. Read relevant historical task descriptions.
-3. Identify the observable behaviors the task should add, change, preserve, or fix.
+3. Identify observable behaviors the task should add, change, preserve, or fix.
 4. Consider important implementation alternatives.
 5. Summarize the implementation plan before making substantial changes.
 
@@ -496,175 +487,31 @@ The final task description should describe the completed task, not the whole con
 
 Do not include intermediate steps unless they explain an important decision, rejected alternative, constraint, or discovery.
 
-Use this final structure:
+Use the standard commit-message structure from this file.
 
-```text
-<Type>: <concise task subject>
+## Type-specific reminders
 
-Links:
-- <commit> — <reason>
+Use these only when they add information beyond the general rules.
 
-Context:
-...
+For `Bug fix:`, include incorrect behavior, expected behavior, cause if known, fix, and regression verification when practical.
 
-Implementation:
-...
+For `Refactor:`, state that no behavior change is intended and verify behavioral equivalence.
 
-Verification:
-...
-```
+For `Revert:`, link the reverted commit and explain whether the revert was clean or required adjustments.
 
-Omit `Links:` only when no related historical commits are useful.
+For `Formatting:` and `Mechanical:`, state that no behavior change is intended. Use `.git-blame-ignore-revs` for large blame-obscuring changes when available.
 
-## Special task guidance
+For `Dependency:`, describe changed packages, compatibility work, and affected behavior verification.
 
-### Feature
+For `Database:`, cover migration, rollback, existing data, and new data where practical.
 
-Use `Feature:` for a new user-visible or system-visible capability.
+For `CI:` and `Build:`, verify the affected workflow, command, or produced output.
 
-The `Context:` section should explain the missing capability and why it is needed.
+For `Test:`, describe the risk or regression covered and include the exact test command and result.
 
-The `Implementation:` section should describe the new behavior and the main implementation pieces.
+For `Docs:`, state that no runtime behavior changed unless documentation generation affects runtime artifacts.
 
-The `Verification:` section should cover the main success path and important edge cases.
-
-### Improvement
-
-Use `Improvement:` for improving existing behavior without adding a distinct new capability.
-
-The `Context:` section should explain what was suboptimal and what better behavior is expected.
-
-The `Implementation:` section should describe what changed and whether existing behavior was preserved.
-
-The `Verification:` section should cover the improved behavior and any important existing behavior that should still work.
-
-### Bug fix
-
-Use `Bug fix:` for correcting incorrect, broken, or unintended behavior.
-
-The `Context:` section should explain the incorrect behavior, expected behavior, and cause if known.
-
-The `Implementation:` section should explain how the fix addresses the cause.
-
-The `Verification:` section should include a regression test when practical, or explain how the behavior was otherwise verified.
-
-### Refactor
-
-Use `Refactor:` for restructuring implementation without intended behavior changes.
-
-The `Context:` section should explain why the refactor is useful.
-
-The `Implementation:` section should state that no behavior change is intended.
-
-The `Verification:` section should include tests or checks that support behavioral equivalence.
-
-### Revert
-
-Use `Revert:` for undoing a previous change.
-
-The `Links:` section should include the reverted commit.
-
-The `Context:` section should explain why the revert is needed.
-
-The `Implementation:` section should describe whether the revert was clean or required adjustments.
-
-The `Verification:` section should describe how the restored behavior was checked.
-
-### Formatting and mechanical changes
-
-Use `Formatting:` for formatting-only changes.
-
-Use `Mechanical:` for minor mechanical changes such as codemods, generated-name normalization, simple file renames, or repetitive import/path updates with no intended behavior change.
-
-Formatting and mechanical commits should be rare and must not be mixed with behavior changes.
-
-If they affect many lines and reduce the usefulness of normal blame output, add the commit hash to `.git-blame-ignore-revs` when the repository uses that file.
-
-The `Context:` section should explain why the change was necessary.
-
-The `Implementation:` section should state that no behavior change is intended.
-
-The `Verification:` section should include appropriate formatting, linting, build, or test commands.
-
-### Dependency
-
-Use `Dependency:` for adding, removing, or updating dependencies.
-
-The `Context:` section should explain why the dependency change is needed.
-
-The `Implementation:` section should mention changed packages, migration work, configuration changes, and compatibility adjustments.
-
-The `Verification:` section should prove that affected behavior still works.
-
-### Database
-
-Use `Database:` for schema changes, migrations, indexes, backfills, or data-shape changes.
-
-The `Context:` section should explain why the data shape needs to change.
-
-The `Implementation:` section should mention migrations, schema changes, model changes, backfills, and compatibility behavior.
-
-The `Verification:` section should cover migration, rollback, existing data, and new data where practical.
-
-### CI
-
-Use `CI:` for CI/CD workflows, release automation, and automated project checks.
-
-The `Context:` section should explain what pipeline behavior is missing or incorrect.
-
-The `Implementation:` section should describe the workflow, script, environment, or automation changes.
-
-The `Verification:` section should mention local command checks and, when available, the CI run or workflow result that verified the change.
-
-### Build
-
-Use `Build:` for build tooling, bundling, compilation, or build-script changes.
-
-The `Context:` section should explain what build behavior is missing, broken, inefficient, or outdated.
-
-The `Implementation:` section should describe changes to build tools, scripts, compiler options, bundling, generated artifacts, or output behavior.
-
-The `Verification:` section should include the relevant build command and any behavior-specific checks for the produced output.
-
-### Test
-
-Use `Test:` for test-only changes.
-
-The `Context:` section should explain what risk, behavior, or regression the tests cover.
-
-The `Implementation:` section should describe the new or updated tests.
-
-The `Verification:` section should include the exact test command that was run and whether the new or updated tests passed.
-
-### Docs
-
-Use `Docs:` for documentation-only changes.
-
-The `Context:` section should explain what information was missing, outdated, or unclear.
-
-The `Implementation:` section should summarize the documentation changes.
-
-The `Verification:` section should mention review steps, link checks, generated-doc checks, or state that no runtime behavior changed.
-
-### Config
-
-Use `Config:` for project, environment, tool, or runtime configuration changes.
-
-The `Context:` section should explain what configuration was missing, incorrect, noisy, or outdated.
-
-The `Implementation:` section should describe changed configuration files, defaults, environment behavior, or tool settings.
-
-The `Verification:` section should include checks proving that the affected tool, environment, or runtime behavior uses the new configuration.
-
-### Security, performance, and accessibility
-
-Use `Security:`, `Performance:`, or `Accessibility:` when that concern is the primary purpose of the task.
-
-The `Context:` section should explain the risk, limitation, or user impact.
-
-The `Implementation:` section should describe the mitigation or improvement.
-
-The `Verification:` section should include behavior-specific checks, such as permission checks, abuse cases, performance measurements, accessibility interactions, or tool results.
+For `Security:`, `Performance:`, and `Accessibility:`, include evidence specific to that concern.
 
 # Project memory management
 
@@ -685,13 +532,9 @@ Do not turn `MEMORY.md` into a chronological task log. Git history and commit me
 
 `README.md` should contain public, human-facing project information:
 
-- short project description;
-- user-facing features;
+- project description and user-facing features;
 - tech stack when useful;
-- installation instructions;
-- development commands;
-- build commands;
-- test commands;
+- install, development, build, and test commands;
 - deployment notes;
 - important environment variables;
 - persistent storage notes;
@@ -711,21 +554,16 @@ Good `MEMORY.md` content includes:
 - important source directories and ownership boundaries;
 - reusable implementation patterns;
 - testing strategy and deterministic test helpers;
-- non-obvious constraints or invariants;
-- known integration points;
-- deployment/runtime assumptions that affect implementation;
-- project-specific naming conventions;
-- recurring pitfalls;
-- decisions that are still relevant across many future tasks.
+- durable constraints, invariants, integration points, runtime assumptions, naming conventions, recurring pitfalls, and still-relevant decisions.
 
 Poor `MEMORY.md` content includes:
 
 - per-task progress logs;
 - temporary debugging notes;
 - generic software advice;
-- information already obvious from file names;
-- long copied commit messages;
-- stale details that no longer describe the project.
+- obvious file-name information;
+- copied commit messages;
+- stale details.
 
 `MEMORY.md` should stay around 250 lines. If it grows beyond that, compact it during task finalization.
 
@@ -748,24 +586,9 @@ If `MEMORY.md` conflicts with source code or recent task history, trust the sour
 
 When finalizing a task, review whether `README.md` or `MEMORY.md` should change.
 
-Update `README.md` when the task changes:
+Update `README.md` when the task changes user-facing features, setup/build/run/test commands, deployment behavior, environment variables, storage requirements, or the public project description.
 
-- user-facing features;
-- setup, build, run, or test commands;
-- deployment behavior;
-- environment variables;
-- storage requirements;
-- public project description.
-
-Update `MEMORY.md` when the task changes:
-
-- architecture;
-- source ownership boundaries;
-- reusable implementation patterns;
-- testing strategy;
-- durable constraints or invariants;
-- important integration behavior;
-- recurring pitfalls.
+Update `MEMORY.md` when the task changes architecture, ownership boundaries, reusable implementation patterns, testing strategy, durable constraints, integration behavior, or recurring pitfalls.
 
 Do not update either file just to mention that a normal task happened.
 
