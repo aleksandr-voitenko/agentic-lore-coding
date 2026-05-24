@@ -116,14 +116,15 @@ The README explains the approach for humans. `AGENTS.md` instructs AI agents how
 
 The first line uses a task type and optional scope:
 
-```text
-Feature(snake): Add timed yellow apples
-Improvement(tetris): Center next-piece preview
-Bug fix(leaderboard): Prevent duplicate submissions
-Refactor(scores): Extract shared formatting helper
-```
+> Feature(snake): Add timed yellow apples
 
-The subject should describe the completed outcome, preferably as user-visible or system-visible behavior.
+> Improvement(tetris): Center next-piece preview
+
+> Bug fix(leaderboard): Prevent duplicate submissions
+
+> Refactor(scores): Extract shared formatting helper
+
+The subject describes the completed outcome, preferably as user-visible or system-visible behavior.
 
 ### Links
 
@@ -135,7 +136,9 @@ Good links explain inherited behavior, constraints, design decisions, or test st
 
 
 > Links:
+> 
 > - 93ff88bf7320dc9487f303951ce7f6bf35939e38 — introduced persistent obstacle islands that now influence yellow-apple placement
+>
 > - ed8617874209f09f7eb3bbbe6d3c15898be6276b — created the deterministic Snake engine and tests used to verify timed-food placement
 
 ### Context
@@ -154,7 +157,8 @@ Implementation details must be out of `Context:` unless they explain a constrain
 Example:
 
 > Context:
-The Tetris sidebar preview rendered the next tetromino inside a visible 4x4 grid using the tetromino's source coordinates. That made most next pieces appear aligned toward the top-left of the preview box, and the empty grid cells made odd- and even-sized pieces feel inconsistently placed.
+> 
+> The Tetris sidebar preview rendered the next tetromino inside a visible 4x4 grid using the tetromino's source coordinates. That made most next pieces appear aligned toward the top-left of the preview box, and the empty grid cells made odd- and even-sized pieces feel inconsistently placed.
 > 
 > The desired behavior is for the next-piece preview to look visually centered while preserving the existing tetromino definitions and gameplay behavior.
 
@@ -168,6 +172,7 @@ It is specific enough that a future reader can understand the solution without r
 Example:
 
 > Implementation:
+> 
 > Updated `src/components/tetris-game.tsx` so the next-piece preview computes the bounding box of the current next tetromino, normalizes its cells to that local box, and positions the four rendered blocks around the center of the preview square.
 >  
 > Kept the change local to the sidebar preview instead of changing `getTetrominoPreviewCells`, because the piece definitions were already correct and only the presentation needed different positioning.
