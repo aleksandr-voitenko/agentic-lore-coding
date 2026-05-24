@@ -1,6 +1,16 @@
-<!-- Agentic Lore Coding v12 -->
+<!-- Agentic Lore Coding v13 -->
 
 # Software development best practices
+
+## Instruction strength
+
+Use these meanings throughout this file:
+
+- **Must** means required unless impossible in the current environment or explicitly overridden by the user.
+- **Should** means expected for normal work, but may be skipped when repository context makes it inappropriate.
+- **Prefer** means a default style or design preference, not a hard rule.
+
+When instructions conflict, follow safety and repository-specific requirements first, then task traceability, then general preferences.
 
 ## Core principles
 
@@ -38,13 +48,12 @@ When changing dependencies, schemas, generated files, lockfiles, snapshots, conf
 
 Ensure database migrations, data model updates, and API changes are backward compatible when zero-downtime deployment matters.
 
-Use feature flags or toggles for incomplete, large, risky, or behavior-changing features that need to merge safely before being exposed.
+Use feature flags or toggles when incomplete, large, risky, or behavior-changing work needs to merge safely before being exposed.
 
-For significant architectural, dependency, deployment, or public API changes, draft an ADR with context, alternatives, trade-offs, and the final decision. Present it to the user before proceeding.
+For significant durable decisions, consider an ADR. This is especially useful for architectural, dependency, deployment, public API, data model, or security decisions that future maintainers will need to understand. Present it to the user before proceeding when the decision materially affects the task direction.
 
 Keep module, package, service, and layer boundaries explicit. Prefer intentional, minimal, documented public interfaces and private implementation details.
 
-Avoid growing already-large or high-touch modules. Prefer cohesive extraction or a new module when it keeps responsibilities clearer without causing an unnecessary rewrite.
 
 Design APIs so call sites are easy to understand. Avoid unclear boolean flags, ambiguous `null` or `None` values, positional mode arguments, magic strings, and unexplained numeric literals when clearer options are practical.
 
@@ -76,10 +85,7 @@ Handle errors gracefully. Do not swallow exceptions silently; surface or log eno
 
 For refactors, behavior should remain strictly unchanged unless the task explicitly says otherwise.
 
-## Maintainability
-Keep tests, fixtures, examples, and documentation close to the behavior they describe when the repository structure allows it.
-
-Avoid adding new functionality to files that are already large, central, or frequently changed unless there is a strong reason. Prefer cohesive extraction or a new module when it improves maintainability without causing an unnecessary rewrite.
+Keep tests, fixtures, examples, and documentation close to the behavior they describe when possible. Avoid growing large, central, or high-touch modules without a strong reason; prefer cohesive extraction when it improves maintainability without causing an unnecessary rewrite.
 
 ## Formatting and mechanical changes
 
@@ -103,7 +109,7 @@ Prefer automated tests when the project structure supports them.
 
 Use deterministic tests for randomness, timers, generated data, concurrency, retries, and asynchronous behavior when practical.
 
-For UI changes, verify the specific screen, state, and interaction that changed.
+For UI changes, verify the specific screen, state, and interaction that changed. Prefer user-visible behavior over implementation details. Mention DOM classes, element counts, screenshots, pixel measurements, or console output only when they are meaningful acceptance evidence. If screenshots are mentioned, they should be committed, attached to a review, or otherwise recoverable; otherwise describe the manual visual comparison. Use meaningful tolerances such as "within sub-pixel tolerance" unless an exact number matters.
 
 For API or data-model changes, verify relevant request, response, migration, compatibility, documentation, generated schema/client, and error behavior.
 
@@ -132,6 +138,8 @@ List standard checks only when:
 - the check failed and affected the task;
 - the check was expected but was not run.
 
+A standard check is expected when repository documentation, package scripts, task type, changed files, or user request make it the normal validation path. Do not list every possible unrun check.
+
 If an expected standard check was not run, list it with a reason.
 
 Starting a local server is not meaningful verification by itself. Mention it only when a specific behavior was checked through the running app.
@@ -144,13 +152,13 @@ When changing behavior, APIs, configuration, data models, permissions, feature f
 
 Document non-obvious decisions close to the code they affect. Prefer concise comments that explain why something exists rather than restating what the code does.
 
-# Task-based workflow
+# Agentic Lore Coding protocol
 
 ## Purpose
 
-This repository is developed through explicit, task-based changes.
+Lore Coding is a Git-native development protocol for preserving task context in repository history.
 
-A task is an atomic unit of development effort. Each meaningful change should be traceable through the commit message that introduced it.
+A task is an atomic unit of development effort. Each meaningful change should be recorded as a structured task commit with context, implementation summary, verification evidence, and related historical commits.
 
 Together, task commit messages form a historical knowledge graph for human developers and AI agents.
 
@@ -214,7 +222,13 @@ Verification:
 ...
 ```
 
-The first line is the commit subject. It must start with a task type followed by a concise description of the completed task.
+The first line is the commit subject. It must start with a task type followed by a concise description of the completed task. It may include an optional scope when that improves navigation:
+
+```text
+<Type>(<scope>): concise task subject
+```
+
+Use a scope for a feature area, module, package, game, service, or subsystem. Omit it when it would add noise.
 
 The `Links:` section is optional. Omit it only when no related historical commits are useful.
 
@@ -273,21 +287,22 @@ Selection rules:
 
 ### Subject
 
-Use this form:
+Use one of these forms:
 
 ```text
 <Type>: concise task subject
+<Type>(<scope>): concise task subject
 ```
 
-The subject should describe the completed task, preferably as a user-visible or system-visible outcome.
+The subject should describe the completed task, preferably as a user-visible or system-visible outcome. Use a scope only when it improves navigation.
 
 Good:
 
 ```text
-Feature: Add timed yellow apples to Snake
-Improvement: Center Tetris next-piece preview
-Bug fix: Prevent duplicate leaderboard submissions
-Refactor: Extract shared score-formatting helper
+Feature(snake): Add timed yellow apples
+Improvement(tetris): Center next-piece preview
+Bug fix(leaderboard): Prevent duplicate submissions
+Refactor(scores): Extract shared formatting helper
 ```
 
 Weak:
@@ -307,6 +322,8 @@ Prefer full commit hashes. Each linked commit must include a short reason explai
 Include commits that introduced or significantly changed relevant behavior, data models, APIs, UI, tests, configuration, or architectural decisions.
 
 Do not include every blamed commit mechanically if doing so would create noise.
+
+A linked commit should be a semantic dependency, not merely a nearby-line edit. The reason should name the inherited behavior, constraint, design decision, or test strategy.
 
 ### Context
 
@@ -483,6 +500,8 @@ Before writing it:
 8. Omit routine development checks that passed unless directly relevant.
 9. Include expected checks that were not run, with reasons.
 
+Before returning, check that `Context:` explains the problem and desired outcome, `Implementation:` explains the chosen solution, `Verification:` maps to acceptance evidence, and routine passing checks are omitted unless relevant.
+
 The final task description should describe the completed task, not the whole conversation.
 
 Do not include intermediate steps unless they explain an important decision, rejected alternative, constraint, or discovery.
@@ -568,6 +587,8 @@ Poor `MEMORY.md` content includes:
 `MEMORY.md` should stay around 250 lines. If it grows beyond that, compact it during task finalization.
 
 When compacting `MEMORY.md`, preserve durable architecture, constraints, conventions, and current implementation patterns. Remove stale details, duplicate wording, and task-specific history.
+
+When a durable memory entry depends on a specific historical decision, include a short source pointer such as a commit hash or file path. Do not copy full task descriptions into `MEMORY.md`.
 
 ## Reading order
 
