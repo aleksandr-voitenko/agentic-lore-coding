@@ -541,11 +541,54 @@ Use project memory to reduce repeated rediscovery at the start of each new conve
 `README.md` and `MEMORY.md` have different audiences:
 
 - `README.md` is for humans using, running, building, or deploying the project.
-- `MEMORY.md` is for AI agents and human maintainers who need compact project context before reading detailed task history.
+- `MEMORY.md` files are for AI agents and human maintainers who need compact durable context before reading detailed task history.
 
 Do not turn `README.md` into an agent scratchpad.
 
-Do not turn `MEMORY.md` into a chronological task log. Git history and commit messages already serve that purpose.
+Do not turn any `MEMORY.md` file into a chronological task log. Git history and task commit messages already serve that purpose.
+
+## Hierarchical memory
+
+A repository may contain multiple `MEMORY.md` files.
+
+The root `MEMORY.md` contains repository-wide context:
+
+- high-level architecture;
+- major source directories and ownership boundaries;
+- cross-cutting implementation patterns;
+- global testing strategy;
+- durable project-wide constraints;
+- important runtime, deployment, or storage assumptions;
+- pointers to important child memory files.
+
+A folder-level `MEMORY.md` contains context for that folder:
+
+- local architecture and ownership boundaries;
+- important files and subfolders at that level;
+- local implementation patterns;
+- local testing strategy and helpers;
+- local constraints, invariants, integration points, naming conventions, and recurring pitfalls.
+
+A folder-level memory file should describe files and immediate child folders in that folder. It may describe deeper descendants only when the detail is necessary to explain a local invariant, boundary, or exception. When doing that, state why the deeper detail belongs there.
+
+Child memory files must refine parent memory, not contradict it. If memory conflicts with source code or recent task history, trust source code and recent task history. Update the affected memory files during finalization if the conflict matters.
+
+## Memory file size
+
+Keep memory files compact.
+
+Prefer many small scoped memory files over one large root memory file.
+
+As a guideline:
+
+- root `MEMORY.md` should stay around 150-250 lines;
+- folder-level `MEMORY.md` files should stay around 80-150 lines.
+
+If a memory file grows beyond its useful size, split or compact it during task finalization.
+
+When compacting memory, preserve durable architecture, constraints, conventions, and current implementation patterns. Remove stale details, duplicate wording, and task-specific history.
+
+When a durable memory entry depends on a specific historical decision, include a short source pointer such as a commit hash or file path. Do not copy full task descriptions into memory files.
 
 ## README.md
 
@@ -563,56 +606,32 @@ Keep `README.md` understandable without requiring knowledge of the internal task
 
 Avoid long internal file maps in `README.md` unless they are genuinely useful to human contributors.
 
-## MEMORY.md
-
-`MEMORY.md` should contain compact, durable project context useful to agents.
-
-Good `MEMORY.md` content includes:
-
-- current high-level architecture;
-- important source directories and ownership boundaries;
-- reusable implementation patterns;
-- testing strategy and deterministic test helpers;
-- durable constraints, invariants, integration points, runtime assumptions, naming conventions, recurring pitfalls, and still-relevant decisions.
-
-Poor `MEMORY.md` content includes:
-
-- per-task progress logs;
-- temporary debugging notes;
-- generic software advice;
-- obvious file-name information;
-- copied commit messages;
-- stale details.
-
-`MEMORY.md` should stay around 250 lines. If it grows beyond that, compact it during task finalization.
-
-When compacting `MEMORY.md`, preserve durable architecture, constraints, conventions, and current implementation patterns. Remove stale details, duplicate wording, and task-specific history.
-
-When a durable memory entry depends on a specific historical decision, include a short source pointer such as a commit hash or file path. Do not copy full task descriptions into `MEMORY.md`.
-
 ## Reading order
 
 At the start of a new task, read project context in this order:
 
-1. `MEMORY.md`, if it exists.
-2. `README.md`.
-3. Relevant source files.
-4. Relevant git history and task commit messages.
+1. root `MEMORY.md`, if it exists;
+2. `README.md`;
+3. any `MEMORY.md` files on the path from the repository root to the target file or folder;
+4. relevant source files;
+5. relevant git history and task commit messages.
 
-Read `MEMORY.md` before exploring git history so the project shape is clear before following detailed historical links.
+When exploring a new folder during implementation, check whether that folder has its own `MEMORY.md` before editing files inside it.
 
-If `MEMORY.md` conflicts with source code or recent task history, trust the source code and recent task history. Update `MEMORY.md` during finalization if the conflict matters.
+Do not read unrelated sibling or descendant memory files unless the task touches those areas.
 
-## Updating README.md and MEMORY.md
+## Updating memory
 
-When finalizing a task, review whether `README.md` or `MEMORY.md` should change.
+When finalizing a task, review whether `README.md` or any relevant `MEMORY.md` files should change.
 
 Update `README.md` when the task changes user-facing features, setup/build/run/test commands, deployment behavior, environment variables, storage requirements, or the public project description.
 
-Update `MEMORY.md` when the task changes architecture, ownership boundaries, reusable implementation patterns, testing strategy, durable constraints, integration behavior, or recurring pitfalls.
+Update the most specific relevant `MEMORY.md` when the task changes local architecture, ownership boundaries, reusable implementation patterns, testing strategy, durable constraints, integration behavior, or recurring pitfalls.
 
-Do not update either file just to mention that a normal task happened.
+Update parent memory only when the change affects that parent's scope.
 
-If `README.md` or `MEMORY.md` is updated, mention that in the task `Implementation:` section.
+Do not update memory files just to mention that a normal task happened.
 
-If reviewing them reveals no needed changes, do not mention that in the commit message unless the user explicitly asked for documentation or memory updates.
+If a memory file is updated, mention that in the task `Implementation:` section.
+
+If reviewing memory reveals no needed changes, do not mention that in the commit message unless the user explicitly asked for documentation or memory updates.
