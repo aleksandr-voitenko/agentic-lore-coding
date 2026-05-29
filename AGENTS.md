@@ -1,4 +1,4 @@
-<!-- Agentic Lore Coding v13 -->
+<!-- Agentic Lore Coding v14 -->
 
 # Software development best practices
 
