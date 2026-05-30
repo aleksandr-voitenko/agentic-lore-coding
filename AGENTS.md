@@ -1,4 +1,4 @@
-<!-- Agentic Lore Coding v14 -->
+<!-- Agentic Lore Coding v15 -->
 
 # Software development best practices
 
@@ -158,17 +158,17 @@ Document non-obvious decisions close to the code they affect. Prefer concise com
 
 Lore Coding is a Git-native development protocol for preserving task context in repository history.
 
-A task is an atomic unit of development effort. Each meaningful change should be recorded as a structured task commit with context, implementation summary, verification evidence, and related historical commits.
+A task is an atomic unit of development effort. Each meaningful change should be recorded as a structured task commit with context, implementation summary, verification evidence, a stable `Lore-ID:` trailer, and optional `Lore-Link:` trailers to related tasks.
 
-Together, task commit messages form a historical knowledge graph for human developers and AI agents.
+Together, task commit messages and their trailers form a historical knowledge graph for human developers and AI agents.
 
-For nearly every meaningful line of code, repository history should explain why the code exists, what task introduced or changed it, which related commits provide context, and how the behavior was verified.
+For nearly every meaningful line of code, repository history should explain why the code exists, what task introduced or changed it, which related tasks provide context, and how the behavior was verified.
 
 Generated files, vendored code, lockfiles, binary assets, and external snapshots may be exceptions, but their changes should still be explained when they are part of a task.
 
 ## Reading historical context
 
-Task descriptions are stored in commit messages.
+Task descriptions are stored in commit messages. Stable task identity and task relationships are stored in Git trailers at the end of those messages.
 
 Before changing existing code, inspect the relevant implementation and historical task descriptions.
 
@@ -180,6 +180,8 @@ git show --no-patch --format=fuller <commit>
 git show --stat <commit>
 git show <commit> -- <file>
 git log --follow -- <file>
+git show --no-patch --format=%B <commit> | git interpret-trailers --parse
+git log --all --grep="Lore-ID: <lore-id>"
 ```
 
 When files have been renamed or moved, use history-following commands where appropriate.
@@ -197,8 +199,11 @@ When exploring history:
 1. Identify the relevant file, symbol, route, component, function, schema, test, or configuration.
 2. Use blame and log history to find commits that introduced or significantly changed it.
 3. Read the full commit messages for those commits.
-4. Follow linked commits when they provide useful context.
-5. Use this history to guide the implementation plan.
+4. Parse the `Lore-ID:` and any `Lore-Link:` trailers from those commits.
+5. Follow linked Lore IDs when they provide useful context.
+6. Use this history to guide the implementation plan.
+
+When resolving a `Lore-Link:`, find the linked task by searching commit messages for its `Lore-ID:` trailer. If multiple commits contain the same Lore ID, inspect them and prefer the one that is reachable from the current branch history unless the task requires another branch.
 
 If exploration reveals that the original task is incomplete, misleading, or likely to require a different approach, stop and tell the user what was discovered, why it matters, the realistic options, and the recommended next step.
 
@@ -209,9 +214,6 @@ Task commit messages must use this structure:
 ```text
 <Type>: concise task subject
 
-Links:
-- <commit> — <reason this commit is relevant>
-
 Context:
 ...
 
@@ -220,6 +222,9 @@ Implementation:
 
 Verification:
 ...
+
+Lore-ID: LC-YYYYMMDD-XXXX
+Lore-Link: LC-YYYYMMDD-XXXX — reason this related task is relevant
 ```
 
 The first line is the commit subject. It must start with a task type followed by a concise description of the completed task. It may include an optional scope when that improves navigation:
@@ -230,9 +235,9 @@ The first line is the commit subject. It must start with a task type followed by
 
 Use a scope for a feature area, module, package, game, service, or subsystem. Omit it when it would add noise.
 
-The `Links:` section is optional. Omit it only when no related historical commits are useful.
+`Lore-ID:` is required and identifies the logical task. `Lore-Link:` is optional and repeatable. Omit `Lore-Link:` trailers only when no related historical tasks are useful. Trailers must be the final lines of the commit message.
 
-The body must contain exactly these mandatory sections:
+The body must contain exactly these mandatory sections followed by trailers:
 
 ```text
 Context:
@@ -313,17 +318,31 @@ Bug fix: Fix bug
 Refactor: Refactor stuff
 ```
 
-### Links
+### Lore trailers
 
-The optional `Links:` section contains related commit hashes that provide useful historical context.
+Task commits must end with a required `Lore-ID:` trailer. Trailers must appear after the `Verification:` section and no free-form content should follow them.
 
-Prefer full commit hashes. Each linked commit must include a short reason explaining why it matters.
+Use this format unless repository tooling defines another one:
 
-Include commits that introduced or significantly changed relevant behavior, data models, APIs, UI, tests, configuration, or architectural decisions.
+```text
+Lore-ID: LC-YYYYMMDD-XXXX
+```
 
-Do not include every blamed commit mechanically if doing so would create noise.
+`Lore-ID:` identifies the logical task. The commit hash identifies one exact Git object. Use the hash for direct code exploration and the Lore ID for durable task identity.
 
-A linked commit should be a semantic dependency, not merely a nearby-line edit. The reason should name the inherited behavior, constraint, design decision, or test strategy.
+Use optional repeated `Lore-Link:` trailers to point to related tasks:
+
+```text
+Lore-Link: LC-YYYYMMDD-XXXX — reason this related task is relevant
+```
+
+Each linked task must include a short reason explaining why it matters. Link tasks that introduced or significantly changed relevant behavior, data models, APIs, UI, tests, configuration, constraints, or architectural decisions.
+
+Do not include every blamed task mechanically if doing so would create noise.
+
+A `Lore-Link:` should be a semantic dependency, not merely a nearby-line edit. The reason should name the inherited behavior, constraint, design decision, or test strategy.
+
+Older commits may still contain a legacy `Links:` section with commit hashes. When reading older history, follow those links when they provide useful context. New task commits should use `Lore-Link:` trailers instead of a `Links:` section.
 
 ### Context
 
@@ -443,17 +462,20 @@ Start a new task: implement something useful
 
 use the text after `Start a new task:` to infer a draft subject and task type.
 
+Generate a new `Lore-ID:` for the task before finalization. Prefer `LC-YYYYMMDD-XXXX`, where the date is the task date and the suffix is a short uppercase random identifier. Verify that the ID is not already used in reachable history before using it.
+
 If the type, subject, goal, or context is insufficient to plan the work, ask for the missing information unless repository context makes a safe assumption clear.
 
 ### Planning
 
 Before editing code:
 
-1. Inspect the current implementation.
-2. Read relevant historical task descriptions.
-3. Identify observable behaviors the task should add, change, preserve, or fix.
-4. Consider important implementation alternatives.
-5. Summarize the implementation plan before making substantial changes.
+1. Inspect applicable `README.md` and memory files using the project-memory reading order.
+2. Inspect the current implementation.
+3. Read relevant historical task descriptions and Lore trailers.
+4. Identify observable behaviors the task should add, change, preserve, or fix.
+5. Consider important implementation alternatives.
+6. Summarize the implementation plan before making substantial changes.
 
 Convert implementation goals into observable behavior.
 
@@ -479,7 +501,7 @@ While editing code:
 - avoid unrelated cleanup;
 - keep formatting-only changes separate where practical;
 - add or update tests when the project structure supports it;
-- track historical commits that should appear in `Links:`;
+- track related historical tasks that should appear as `Lore-Link:` trailers;
 - note assumptions, rejected alternatives, and discoveries that should appear in `Context:`.
 
 If existing behavior changes as a side effect, call it out and confirm that it is intended.
@@ -493,20 +515,21 @@ Before writing it:
 1. Inspect the final diff.
 2. Review the current task context.
 3. Select the task type that best describes the primary purpose.
-4. Review relevant historical commits for `Links:`.
-5. Identify concrete behaviors added, changed, fixed, or intentionally preserved.
-6. Check which verification steps were actually performed.
-7. Make sure every important changed behavior has matching verification.
-8. Omit routine development checks that passed unless directly relevant.
-9. Include expected checks that were not run, with reasons.
+4. Generate or confirm a unique `Lore-ID:` for the task.
+5. Review relevant historical tasks for `Lore-Link:` trailers.
+6. Identify concrete behaviors added, changed, fixed, or intentionally preserved.
+7. Check which verification steps were actually performed.
+8. Make sure every important changed behavior has matching verification.
+9. Omit routine development checks that passed unless directly relevant.
+10. Include expected checks that were not run, with reasons.
 
-Before returning, check that `Context:` explains the problem and desired outcome, `Implementation:` explains the chosen solution, `Verification:` maps to acceptance evidence, and routine passing checks are omitted unless relevant.
+Before returning, check that `Context:` explains the problem and desired outcome, `Implementation:` explains the chosen solution, `Verification:` maps to acceptance evidence, routine passing checks are omitted unless relevant, `Lore-ID:` is present, and `Lore-Link:` trailers point to meaningful related tasks.
 
 The final task description should describe the completed task, not the whole conversation.
 
 Do not include intermediate steps unless they explain an important decision, rejected alternative, constraint, or discovery.
 
-Use the standard commit-message structure from this file.
+Use the standard commit-message structure from this file, including the required `Lore-ID:` trailer.
 
 ## Type-specific reminders
 
@@ -516,7 +539,7 @@ For `Bug fix:`, include incorrect behavior, expected behavior, cause if known, f
 
 For `Refactor:`, state that no behavior change is intended and verify behavioral equivalence.
 
-For `Revert:`, link the reverted commit and explain whether the revert was clean or required adjustments.
+For `Revert:`, include a `Lore-Link:` to the reverted task when available and explain whether the revert was clean or required adjustments.
 
 For `Formatting:` and `Mechanical:`, state that no behavior change is intended. Use `.git-blame-ignore-revs` for large blame-obscuring changes when available.
 
@@ -538,18 +561,20 @@ For `Security:`, `Performance:`, and `Accessibility:`, include evidence specific
 
 Use project memory to reduce repeated rediscovery at the start of each new conversation.
 
-`README.md` and `MEMORY.md` have different audiences:
+`README.md` and `MEMORY.md` files have different audiences:
 
 - `README.md` is for humans using, running, building, or deploying the project.
 - `MEMORY.md` files are for AI agents and human maintainers who need compact durable context before reading detailed task history.
 
 Do not turn `README.md` into an agent scratchpad.
 
-Do not turn any `MEMORY.md` file into a chronological task log. Git history and task commit messages already serve that purpose.
+Do not turn any `MEMORY.md` file into a chronological task log. Git history, task commit messages, and Lore trailers already serve that purpose.
 
 ## Hierarchical memory
 
 A repository may contain multiple `MEMORY.md` files.
+
+Prefer scoped memory over one large root memory file. The goal is to keep memory growth controllable by placing durable context near the code it describes.
 
 The root `MEMORY.md` contains repository-wide context:
 
@@ -564,7 +589,7 @@ The root `MEMORY.md` contains repository-wide context:
 A folder-level `MEMORY.md` contains context for that folder:
 
 - local architecture and ownership boundaries;
-- important files and subfolders at that level;
+- important files and immediate child folders;
 - local implementation patterns;
 - local testing strategy and helpers;
 - local constraints, invariants, integration points, naming conventions, and recurring pitfalls.
@@ -573,11 +598,9 @@ A folder-level memory file should describe files and immediate child folders in 
 
 Child memory files must refine parent memory, not contradict it. If memory conflicts with source code or recent task history, trust source code and recent task history. Update the affected memory files during finalization if the conflict matters.
 
-## Memory file size
+## Memory size and content
 
 Keep memory files compact.
-
-Prefer many small scoped memory files over one large root memory file.
 
 As a guideline:
 
@@ -586,9 +609,13 @@ As a guideline:
 
 If a memory file grows beyond its useful size, split or compact it during task finalization.
 
+Good memory content includes durable architecture, ownership boundaries, reusable implementation patterns, testing strategy, deterministic helpers, constraints, invariants, integration points, runtime assumptions, naming conventions, recurring pitfalls, and still-relevant decisions.
+
+Poor memory content includes per-task progress logs, temporary debugging notes, generic software advice, obvious file-name information, copied commit messages, and stale details.
+
 When compacting memory, preserve durable architecture, constraints, conventions, and current implementation patterns. Remove stale details, duplicate wording, and task-specific history.
 
-When a durable memory entry depends on a specific historical decision, include a short source pointer such as a commit hash or file path. Do not copy full task descriptions into memory files.
+When a durable memory entry depends on a specific historical decision, include a short source pointer such as a Lore ID, commit hash, or file path. Do not copy full task descriptions into memory files.
 
 ## README.md
 
@@ -614,11 +641,13 @@ At the start of a new task, read project context in this order:
 2. `README.md`;
 3. any `MEMORY.md` files on the path from the repository root to the target file or folder;
 4. relevant source files;
-5. relevant git history and task commit messages.
+5. relevant git history, task commit messages, and Lore trailers.
+
+Read memory files from root to leaf so broad constraints are known before local details.
 
 When exploring a new folder during implementation, check whether that folder has its own `MEMORY.md` before editing files inside it.
 
-Do not read unrelated sibling or descendant memory files unless the task touches those areas.
+If a task touches multiple folders, read the memory chain for each touched path. Do not read unrelated sibling or descendant memory files unless the task touches those areas.
 
 ## Updating memory
 
@@ -628,7 +657,7 @@ Update `README.md` when the task changes user-facing features, setup/build/run/t
 
 Update the most specific relevant `MEMORY.md` when the task changes local architecture, ownership boundaries, reusable implementation patterns, testing strategy, durable constraints, integration behavior, or recurring pitfalls.
 
-Update parent memory only when the change affects that parent's scope.
+Update parent memory only when the change affects that parent's scope. Prefer updating the lowest applicable memory file when the change is local.
 
 Do not update memory files just to mention that a normal task happened.
 
