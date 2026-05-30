@@ -1,4 +1,4 @@
-<!-- Agentic Lore Coding v15 -->
+<!-- Agentic Lore Coding v16 -->
 
 # Software development best practices
 
@@ -81,7 +81,9 @@ Prefer comparing complete values or meaningful structured outputs in tests inste
 
 Update nearby obsolete comments, docstrings, examples, or inline documentation when modifying related code, while preserving atomic task scope.
 
-Handle errors gracefully. Do not swallow exceptions silently; surface or log enough context for debugging.
+Handle errors gracefully. Do not swallow exceptions silently.
+
+Write useful error messages. Include what failed, why it likely failed when that can be inferred safely, and the relevant identifier, request, file path, user action, operation, or external service context. Do not expose secrets or sensitive data in errors or logs.
 
 For refactors, behavior should remain strictly unchanged unless the task explicitly says otherwise.
 
@@ -151,6 +153,8 @@ Keep user-facing, developer-facing, and generated documentation aligned with cod
 When changing behavior, APIs, configuration, data models, permissions, feature flags, deployment assumptions, or operational workflows, update relevant documentation in the same task when applicable.
 
 Document non-obvious decisions close to the code they affect. Prefer concise comments that explain why something exists rather than restating what the code does.
+
+When useful, document invariants, edge cases, external constraints, compatibility requirements, data-shape assumptions, timing assumptions, or integration contracts that are not obvious from the code alone.
 
 # Agentic Lore Coding protocol
 
