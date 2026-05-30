@@ -22,7 +22,7 @@ The goal is not to replace code review, tests, issues, ADRs, or documentation. I
 
 A common problem in AI-assisted development is that context compaction in AI-agent sessions can increase the risk of later hallucinations, especially when important details are omitted, compressed too aggressively, or distorted. Context compaction is usually a lossy summarization process: older conversation history is replaced by a shorter generated summary, so the agent may later rely on incomplete or slightly altered information.
 
-Lore Coding reduces this risk by moving durable task context out of the live chat and into repository history. Each meaningful change is recorded as a structured task commit with context, implementation details, verification evidence, and, when useful, links to related commits. This makes it practical to start new work in a fresh agent session with minimal task-specific context, then detailed historical context can be recovered from Git history, `MEMORY.md`, and the relevant source files when needed. As a result, ordinary tasks are less likely to require context compaction, although very large or complex tasks may still need it.
+Lore Coding reduces this risk by moving durable task context out of the live chat and into repository history. Each meaningful change is recorded as a structured task commit with context, implementation details, verification evidence, a stable `Lore-ID:` trailer, and optional `Lore-Link:` trailers to related tasks. This makes it practical to start new work in a fresh agent session with minimal task-specific context, then detailed historical context can be recovered from Git history, `MEMORY.md`, and the relevant source files when needed. As a result, ordinary tasks are less likely to require context compaction, although very large or complex tasks may still need it.
 
 ## Core idea
 
@@ -33,9 +33,6 @@ Each task ends with a structured commit message:
 ```text
 <Type>(optional-scope): concise task subject
 
-Links:
-- <commit> — <reason this historical commit matters>
-
 Context:
 ...
 
@@ -44,7 +41,12 @@ Implementation:
 
 Verification:
 ...
+
+Lore-ID: LC-YYYYMMDD-XXXX
+Lore-Link: LC-YYYYMMDD-XXXX — reason this related task matters
 ```
+
+`Lore-ID:` gives the task a stable logical identity. Optional repeated `Lore-Link:` trailers connect the task to earlier related tasks.
 
 Over time, these commits form an intent graph:
 
@@ -52,22 +54,23 @@ Over time, these commits form an intent graph:
 Current code
    ↓ git blame / git log
 Task commit
-   ↓ Links
+   ↓ Lore-ID / Lore-Link trailers
 Related task commits
    ↓ Context / Implementation / Verification
 Recovered project intent
 ```
 
-## Core Principles
+## Core principles
+
 Lore Coding depends on a few practices:
 
 - **Preserve intent.** Explain why the change exists, not only what changed.
 - **Keep changes atomic.** One task should have one coherent purpose.
 - **Read history before editing.** Existing code often carries decisions that are not obvious from the current file alone.
-- **Link related commits.** Make dependencies between decisions explicit.
+- **Link related tasks.** Use `Lore-Link:` trailers to make dependencies between decisions explicit.
 - **Verify behavior.** Tests and manual checks should map to the behavior that matters.
 - **Avoid noisy logs.** Routine passing checks should not drown out acceptance evidence.
-- **Maintain project memory.** Use `MEMORY.md` for compact durable context, not chronological task history.
+- **Maintain project memory.** Use scoped `MEMORY.md` files for compact durable context near the code they describe, not chronological task history.
 
 The graph is stored in Git itself. No database, SaaS product, or dedicated CLI is required.
 
@@ -91,7 +94,7 @@ Then:
 Finalize the task.
 ```
 
-The agent produces a commit-message-ready task description with context, implementation, verification, and links to related commits.
+The agent produces a commit-message-ready task description with context, implementation, verification, a `Lore-ID:`, and any useful `Lore-Link:` trailers.
 
 Finally:
 you can review, possibly edit and commit the task description by yourself, or ask an agent to do this.
@@ -104,9 +107,9 @@ The main operational file is [`AGENTS.md`](AGENTS.md). It contains:
 
 - general software development practices for AI agents;
 - the Agentic Lore Coding task method;
-- commit message rules;
+- commit message and Lore trailer rules;
 - task lifecycle rules;
-- project memory management rules.
+- hierarchical project memory management rules.
 
 The README explains the approach for humans. `AGENTS.md` instructs AI agents how to apply it.
 
@@ -126,20 +129,19 @@ The first line uses a task type and optional scope:
 
 The subject describes the completed outcome, preferably as user-visible or system-visible behavior.
 
-### Links
+### Lore trailers
 
-`Links:` contains related commit hashes with reasons.
+Each task commit ends with a required `Lore-ID:` trailer and optional repeated `Lore-Link:` trailers.
 
-Use links for semantic dependencies, not every nearby line from `git blame`.
+`Lore-ID:` gives the task a stable logical identity. `Lore-Link:` points to related historical tasks with a short reason.
 
-Good links explain inherited behavior, constraints, design decisions, or test strategy:
+Use `Lore-Link:` for semantic dependencies, not every nearby line from `git blame`. Good links explain inherited behavior, constraints, design decisions, or test strategy.
 
+Example:
 
-> Links:
-> 
-> - 93ff88bf7320dc9487f303951ce7f6bf35939e38 — introduced persistent obstacle islands that now influence yellow-apple placement
->
-> - ed8617874209f09f7eb3bbbe6d3c15898be6276b — created the deterministic Snake engine and tests used to verify timed-food placement
+> Lore-ID: LC-20260530-7K3P
+> Lore-Link: LC-20260524-AK3P — introduced persistent obstacle islands that now influence yellow-apple placement
+> Lore-Link: LC-20260525-Q8RD — created the deterministic Snake engine tests used to verify timed-food placement
 
 ### Context
 
@@ -213,7 +215,16 @@ Example:
 | `Accessibility:` | Accessibility behavior or semantics |
 | `Chore:` | Repository maintenance that does not fit another type |
 
-When a task touches several categories, the primary purpose is chosen. Optionally, an agent my offer to make several commits.
+When a task touches several categories, the primary purpose is chosen. Optionally, an agent may offer to split the work into several commits.
+
+## Project memory
+
+Lore Coding uses `README.md` and `MEMORY.md` files for different audiences:
+
+- `README.md` explains the project and method for humans using or evaluating it.
+- `MEMORY.md` files provide compact durable context for agents and maintainers before they read detailed task history.
+
+Large projects can use hierarchical memory: the root `MEMORY.md` keeps repository-wide context, while folder-level `MEMORY.md` files describe local architecture, constraints, patterns, and testing strategy for the folder they live in.
 
 ## Relationship to similar ideas
 
@@ -221,12 +232,12 @@ Lore Coding combines several existing ideas, but optimizes for a lightweight, pr
 
 | Related idea | Similarity | Difference |
 |---|---|---|
-| [Lore Protocol][lore-protocol] | Also preserves decision context in Git commit messages for AI agents. | Lore Protocol uses Git trailers, stable Lore IDs, validation, and CLI query/trace commands. Lore Coding uses human-readable task sections and a simple `Start a new task` / `Finalize the task` prompt workflow. It less relies on tools. |
-| [Conventional Commits][conventional-commits] | Uses typed commit subjects to make history explicit. | Lore Coding uses typed subjects too, but the main value is the structured body: context, implementation, verification, and related commits. |
+| [Lore Protocol][lore-protocol] | Also preserves decision context in Git history for AI agents and uses stable task identity. | Lore Protocol is more schema- and CLI-oriented. Lore Coding uses a smaller trailer set, human-readable task sections, repository instructions, and a simple `Start a new task` / `Finalize the task` prompt workflow. |
+| [Conventional Commits][conventional-commits] | Uses typed commit subjects to make history explicit. | Lore Coding uses typed subjects too, but the main value is the structured body plus `Lore-ID:` and `Lore-Link:` trailers for task identity and traceability. |
 | [Architecture Decision Records][adr] | Preserves decision context and rationale. | ADRs are best for significant architectural decisions. Lore Coding records routine task-level rationale directly in commits. |
-| [Requirements traceability][requirements-traceability] | Connects intent, implementation, and verification. | Lore Coding creates a lightweight Git-native trace through task commits and links instead of a separate traceability matrix. |
+| [Requirements traceability][requirements-traceability] | Connects intent, implementation, and verification. | Lore Coding creates a lightweight Git-native trace through task commits and Lore trailers instead of a separate traceability matrix. |
 | [Docs as Code][docs-as-code] | Keeps knowledge in plain text and version control. | Docs as Code focuses on documentation artifacts. Lore Coding focuses on task history attached to code changes. |
-| [Git trailers][git-trailers] and [Git notes][git-notes] | Provide Git-native mechanisms for structured or attached metadata. | Lore Coding can adopt such mechanisms later, but does not require them. |
+| [Git trailers][git-trailers] and [Git notes][git-notes] | Provide Git-native mechanisms for structured or attached metadata. | Lore Coding uses Git trailers for task identity and links, but keeps the explanatory task record in ordinary human-readable commit sections. |
 | [Issue-driven development][issue-driven-development] and [IssueOps][issueops] | Start work from explicit issues or use issues as workflow interfaces. | Lore Coding can start from issues, but its durable source of truth is the structured Git history. |
 | [Spec-driven development][spec-driven-development] | Uses explicit written intent to guide implementation. | Lore Coding is lighter and task-local: it records intent and verification in commits rather than making a full specification the primary artifact. |
 | [Vibe coding][vibe-coding] | Uses natural language to guide AI-assisted coding. | Lore Coding adds traceability, verification, and historical memory so AI-generated changes remain understandable later. |
@@ -239,8 +250,8 @@ Both approaches use Git history to preserve context for AI coding agents.
 
 The difference is emphasis:
 
-- **Lore Protocol** is more toolable and schema-oriented. It uses structured Git trailers, stable IDs, and CLI commands for querying, validation, and tracing.
-- **Lore Coding** is more workflow-oriented and prompt-native. It uses ordinary Git commands, human-readable commit sections, linked commits, and agent instructions in `AGENTS.md`.
+- **Lore Protocol** is more toolable and schema-oriented. It emphasizes structured metadata, validation, and CLI commands for querying and tracing.
+- **Lore Coding** is more workflow-oriented and prompt-native. It uses a minimal trailer set for identity and links, while keeping the explanatory task record in human-readable commit sections guided by `AGENTS.md`.
 
 The trade-off is deliberate.
 
@@ -250,12 +261,12 @@ Lore Protocol is stronger when teams want machine-validated metadata and dedicat
 
 Lore Coding is intentionally lightweight, which means:
 
-- it relies on agent discipline and review rather than strict schema validation;
-- commit hashes in `Links:` can change after rebases or cherry-picks;
+- it relies on agent discipline and review unless validation tooling is added;
+- `Lore-ID:` and `Lore-Link:` trailers improve logical traceability, but the graph still depends on meaningful task boundaries and link reasons;
 - the intent graph is easy to inspect manually, but less queryable than a dedicated metadata system;
 - the quality of the graph depends on task size, commit-message quality, and verification discipline.
 
-Projects with heavier needs can add stable task IDs, Git trailers, validation scripts, or visualization tooling later.
+Projects with heavier needs can add validation scripts, generated indexes, query tools, or visualization tooling later.
 
 ## Project status
 
