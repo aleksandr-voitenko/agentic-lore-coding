@@ -1,8 +1,9 @@
-<!-- Agentic Lore Coding v16 -->
+<!-- Agentic Lore Coding v17 -->
 
-# Software development best practices
+# Introduction
+You are working in an Agentic Lore Coding environment.
 
-## Instruction strength
+# Instruction strength
 
 Use these meanings throughout this file:
 
@@ -12,29 +13,38 @@ Use these meanings throughout this file:
 
 When instructions conflict, follow safety and repository-specific requirements first, then task traceability, then general preferences.
 
-## Core principles
+# Software development principles
+
+## Core guidelines
 
 Do not make unsupported guesses.
 
-Ask the user when a requirement is blocking, risky, irreversible, or meaningfully ambiguous. If the ambiguity is minor and repository context strongly suggests the answer, make a reasonable assumption, document it, and continue.
+Start non-trivial work with research or planning. Turn vague input into a concrete implementation plan before writing code. Identify important working assumptions and separate them from open questions that would change the plan.
 
-Start non-trivial work with research or planning. Turn vague input into a concrete implementation plan before writing code.
+Consider alternatives when a decision affects architecture, behavior, public APIs, data models, dependencies, performance, security, accessibility, deployment, tooling, or maintainability.
 
-Consider alternatives when a decision affects architecture, behavior, public APIs, data models, dependencies, performance, security, accessibility, deployment, tooling, or maintainability. Present trade-offs when the choice is meaningful.
-
-Preserve existing behavior unless the task intentionally changes it. If behavior changes as a side effect, call it out and confirm that it is intended.
-
-Keep changes atomic. Do not mix unrelated behavior changes, refactors, formatting, dependency updates, generated-file updates, or UI cleanup in one task.
+Keep changes atomic. Do not mix unrelated behavior changes, refactors, formatting, dependency updates, generated-file updates, or UI cleanup in one task. Minimize the footprint of a change and use existing abstractions, owners, or integration points when they fit cleanly.
 
 If a separate unrelated issue is discovered, leave it unchanged and notify the user. Include it in the current task only when necessary to complete or verify the requested change safely.
 
-Prefer small, targeted changes. Minimize the footprint of a change and use existing abstractions, owners, or integration points when they fit cleanly.
-
 Do not bypass, remove, or alter environment checks, sandbox checks, feature gates, test guards, CI guards, or safety-related conditions unless the task explicitly requires it and the reason is understood and documented.
+
+## Semantic sanity gate
+
+Before implementing any task, check whether the literal request makes sense for the current product, game, domain, and user-facing experience.
+
+Do not convert a nonsensical request into a plausible feature by inventing an interpretation. The existence of a low-risk implementation does not make the assumption safe.
+
+In these cases, respond with:
+1. why the request appears inconsistent with the current game or product;
+2. one or two plausible interpretations;
+3. a direct clarification question.
+
+Proceed without asking only when the user explicitly confirms that the oddity is intentional.
 
 ## Repository, tooling, and environment
 
-Follow repository-specific instructions before general preferences. Prefer existing project conventions over introducing new patterns.
+Follow repository-specific instructions before general preferences. Prefer existing project conventions over introducing new patterns. Preserve existing behavior unless the task intentionally changes it. If behavior changes as a side effect, call it out and confirm that it is intended.
 
 Before running repository instructions, ensure required local tools are available. Use the documented setup process when possible. If a required tool cannot be installed or used, report the limitation instead of silently skipping the step.
 
@@ -48,18 +58,56 @@ When changing dependencies, schemas, generated files, lockfiles, snapshots, conf
 
 Ensure database migrations, data model updates, and API changes are backward compatible when zero-downtime deployment matters.
 
-Use feature flags or toggles when incomplete, large, risky, or behavior-changing work needs to merge safely before being exposed.
+In large codebases, use feature flags or toggles when incomplete, large, risky, or behavior-changing work needs to merge safely before being exposed.
 
 For significant durable decisions, consider an ADR. This is especially useful for architectural, dependency, deployment, public API, data model, or security decisions that future maintainers will need to understand. Present it to the user before proceeding when the decision materially affects the task direction.
 
 Keep module, package, service, and layer boundaries explicit. Prefer intentional, minimal, documented public interfaces and private implementation details.
-
 
 Design APIs so call sites are easy to understand. Avoid unclear boolean flags, ambiguous `null` or `None` values, positional mode arguments, magic strings, and unexplained numeric literals when clearer options are practical.
 
 Make known state handling exhaustive where practical. Avoid catch-all branches when explicit cases would be safer or clearer.
 
 For asynchronous or concurrent APIs, make contracts around cancellation, ordering, retries, timeouts, thread safety, idempotency, resource ownership, and error propagation explicit when they matter.
+
+## Assumption management
+
+Treat assumptions as part of the work. User prompts may omit important details. When that happens, identify the missing information and decide whether to ask, infer, or proceed with a documented assumption.
+
+### Mandatory assumption checkpoint
+
+Before making code edits for any non-trivial task, the surface working assumptions in a short standalone `Assumptions:` section.
+
+The section must include:
+
+- `Safe assumptions:` low-risk assumptions the agent will proceed with
+- `Material assumptions:` assumptions that affect behavior, UX, APIs, data, architecture, tests, or user-facing meaning
+- `Blocking assumptions:` assumptions that require confirmation before editing
+
+If there are no assumptions in a category, say `None`.
+
+Material assumptions must be explicitly justified with repository evidence. If the evidence is weak, ambiguous, or based mainly on interpreting the user's intent, treat the assumption as blocking and ask before editing.
+
+Do not hide assumptions inside a general plan. They must be visible as assumptions.
+
+### Assumption escalation triggers
+
+Treat the following as material or blocking assumptions by default:
+
+- the request seems joke-like, absurd, contradictory, or cross-domain.
+- the request would add behavior that does not fit the current product.
+- the implementation is easy but the purpose is unclear.
+
+Low implementation risk does not make an assumption safe.
+
+### Documenting assumption
+Do not document trivial assumptions in final task messages. Document only assumptions that materially shaped the solution.
+
+In final task descriptions:
+
+- put task-shaping assumptions in `Context:`
+- put implementation consequences of assumptions in `Implementation:`
+- put checks related to assumptions in `Verification:`
 
 ## Code quality
 
@@ -107,11 +155,11 @@ Verification should prove the behavior that matters.
 
 For each important behavior introduced, changed, fixed, or intentionally preserved, include at least one matching verification step.
 
-Prefer automated tests when the project structure supports them.
+Prefer automated tests when the project structure supports them. If the number of tests grows and the technology stack allows measuring test coverage, suggest that the user add it and set recommended thresholds to fail the CI build.
 
 Use deterministic tests for randomness, timers, generated data, concurrency, retries, and asynchronous behavior when practical.
 
-For UI changes, verify the specific screen, state, and interaction that changed. Prefer user-visible behavior over implementation details. Mention DOM classes, element counts, screenshots, pixel measurements, or console output only when they are meaningful acceptance evidence. If screenshots are mentioned, they should be committed, attached to a review, or otherwise recoverable; otherwise describe the manual visual comparison. Use meaningful tolerances such as "within sub-pixel tolerance" unless an exact number matters.
+For UI changes, verify the specific screen, state, and interaction that changed. Prefer user-visible behavior over implementation details. Mention DOM classes, element counts, screenshots, pixel measurements, or console output only when they are meaningful acceptance evidence. If screenshots are mentioned, they should be attached to a review, or otherwise recoverable; otherwise describe the manual visual comparison. Use meaningful tolerances such as "within sub-pixel tolerance" unless an exact number matters.
 
 For API or data-model changes, verify relevant request, response, migration, compatibility, documentation, generated schema/client, and error behavior.
 
@@ -480,6 +528,7 @@ Before editing code:
 4. Identify observable behaviors the task should add, change, preserve, or fix.
 5. Consider important implementation alternatives.
 6. Summarize the implementation plan before making substantial changes.
+7. List any gaps in the user's prompt that were addressed, and describe the assumptions made.
 
 Convert implementation goals into observable behavior.
 
@@ -510,6 +559,14 @@ While editing code:
 
 If existing behavior changes as a side effect, call it out and confirm that it is intended.
 
+### Writing post-implementation summary
+
+When reporting completed work to the user, mention any material assumptions that shaped the solution, unless they were already disclosed in an earlier final/task-completion report for the same task and have not changed.
+
+Assumptions disclosed only in planning notes, progress updates, or pre-edit checkpoints do not count as task-completion-report disclosure. Repeat task-shaping assumptions in the final report when they affected behavior, UX, APIs, data, architecture, tests, or user-facing meaning.
+
+Do not include trivial assumptions that did not shape the implementation. If an assumption changed during the work, briefly state both the earlier assumption and the final one.
+
 ### Finalizing a task
 
 When the user says `Finalize the task`, create a commit-message-ready task description.
@@ -531,7 +588,7 @@ Before returning, check that `Context:` explains the problem and desired outcome
 
 The final task description should describe the completed task, not the whole conversation.
 
-Do not include intermediate steps unless they explain an important decision, rejected alternative, constraint, or discovery.
+Do not include intermediate steps unless they explain an important decision, rejected alternative, constraint, or discovery. Document only assumptions that materially shaped the solution.
 
 Use the standard commit-message structure from this file, including the required `Lore-ID:` trailer.
 
