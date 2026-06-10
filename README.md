@@ -1,230 +1,135 @@
-# Agentic Lore Coding
+## What is this?
 
-**Agentic Lore Coding** is an issue-aware, Git-native development approach built around a structured protocol for AI-assisted software work.
+**Agentic Lore Coding** is a Git-native structured agent workflow (and protocol) for AI-assisted software development.
+It enables highly automated software development, where you, as a developer, only need to define high-level constraints and follow simple guidelines.
 
-It turns structured task commits and repository history into an **intent graph**: a durable record of why code changed, how it changed, how it was verified, and which earlier decisions matter.
+In essence, this project introduces a single `AGENTS.md` file that changes both how you work with agents and how agents do their work.
 
-The short name is **Lore Coding**.
+## What problems does it solve?
 
-## Why this exists
+When developing with AI agents out of the box (without using special tools and skills), there are following main issues:
+- **Amnesia**. In each new session, agents have to rediscover who they are, where they are, and what year it is. Agents do their best to find all the relevant parts by using context mentioned in a task description, `AGENTS.md` information, file search, regular expressions and sometimes even a shallow git history exploration, but it is not guaranteed that they will discover all the required pieces of the puzzle. They do not know why a piece of code exists, which constraints shaped it and which alternatives were rejected. Using Lore Coding, agents quickly get all the required context for their work.
+- **Context bloat**. Blind search leads to rapid context overflow with information that is not always relevant. Additionally, using a single session to tackle the previous problem inevitably causes context compaction, which increases the chance of hallucinations. With Lore Coding, you can safely start each task in a separate agent session without frequently running into context compaction issues.
+- **Lack of guidance**. If agents do not have strict operating boundaries, they tend to produce quite creative and unexpected solutions. Very often they duplicate entities without any obvious (from a human perspective) reason, delete tests to bypass build failures, and generate large chunks of unverified code. Deterministic checks, such as unit tests, have proved effective in combating this by forcing agents to verify their own output, but it is possible to go much further. Lore Coding provides a set of strict rules and development practices with very few escape hatches.
+- **Undisclosed assumptions**. No matter how well the prompt is written, agents will still find gaps and fill them in according to their own aesthetic preferences and creative judgment. These assumptions often introduce unexpected behavior that remains buried deep in the code, only to emerge later as inconsistencies and bugs. Agentic Lore Coding enables explicit assumption management by requiring agents to surface and document assumptions they make.
 
-AI coding agents can produce useful code quickly, but they often lose the historical context that maintainers rely on:
+## How does it work in a nutshell?
 
-- why a piece of code exists;
-- which constraints shaped it;
-- which alternatives were rejected;
-- which related commits should be read before changing it;
-- which behavior was actually verified.
+Basically, there are only two commands that trigger complex agentic behavior under the hood. A typical development loop looks like this:
 
-Normal commit history usually briefly answers **what changed**. Lore Coding tries to make Git history answer **why it changed** and **how future agents should reason about it**.
-
-The goal is not to replace code review, tests, issues, ADRs, or documentation. Instead, Agentic Lore Coding makes the ordinary development loop preserve enough structured context for the next human or AI agent to continue without rediscovering the same decisions.
-
-A common problem in AI-assisted development is that context compaction in AI-agent sessions can increase the risk of later hallucinations, especially when important details are omitted, compressed too aggressively, or distorted. Context compaction is usually a lossy summarization process: older conversation history is replaced by a shorter generated summary, so the agent may later rely on incomplete or slightly altered information.
-
-Lore Coding reduces this risk by moving durable task context out of the live chat and into repository history. Each meaningful change is recorded as a structured task commit with context, implementation details, verification evidence, a stable `Lore-ID:` trailer, and optional `Lore-Link:` trailers to related tasks. This makes it practical to start new work in a fresh agent session with minimal task-specific context, then detailed historical context can be recovered from Git history, `MEMORY.md`, and the relevant source files when needed. As a result, ordinary tasks are less likely to require context compaction, although very large or complex tasks may still need it.
-
-## Core idea
-
-Every meaningful change is treated as a task.
-
-Each task ends with a structured commit message:
-
-```text
-<Type>(optional-scope): concise task subject
-
-Context:
-...
-
-Implementation:
-...
-
-Verification:
-...
-
-Lore-ID: LC-YYYYMMDD-XXXX
-Lore-Link: LC-YYYYMMDD-XXXX — reason this related task matters
-```
-
-`Lore-ID:` gives the task a stable logical identity. Optional repeated `Lore-Link:` trailers connect the task to earlier related tasks.
-
-Over time, these commits form an intent graph:
-
-```text
-Current code
-   ↓ git blame / git log
-Task commit
-   ↓ Lore-ID / Lore-Link trailers
-Related task commits
-   ↓ Context / Implementation / Verification
-Recovered project intent
-```
-
-## Core principles
-
-Lore Coding depends on a few practices:
-
-- **Preserve intent.** Explain why the change exists, not only what changed.
-- **Keep changes atomic.** One task should have one coherent purpose.
-- **Read history before editing.** Existing code often carries decisions that are not obvious from the current file alone.
-- **Link related tasks.** Use `Lore-Link:` trailers to make dependencies between decisions explicit.
-- **Verify behavior.** Tests and manual checks should map to the behavior that matters.
-- **Avoid noisy logs.** Routine passing checks should not drown out acceptance evidence.
-- **Maintain project memory.** Use scoped `MEMORY.md` files for compact durable context near the code they describe, not chronological task history.
-
-The graph is stored in Git itself. No database, SaaS product, or dedicated CLI is required.
-
-## What makes it agentic
-
-Lore Coding is designed for AI agents that can read files, inspect Git history, edit code, run checks, and prepare commit messages.
-
-The minimal interaction pattern is intentionally simple:
-
-```text
-Start a new task:
-
-<goal or description>
-```
-
-The agent explores the repository, reads relevant history, proposes a plan, implements the change, and verifies the behavior.
-
-Then:
-
-```text
-Finalize the task.
-```
-
-The agent produces a commit-message-ready task description with context, implementation, verification, a `Lore-ID:`, and any useful `Lore-Link:` trailers.
-
-Finally:
-you can review, possibly edit and commit the task description by yourself, or ask an agent to do this.
-
-## What this repository contains
-
-This repository is the home of the Agentic Lore Coding.
-
-The main operational file is [`AGENTS.md`](AGENTS.md). It contains:
-
-- general software development practices for AI agents;
-- the Agentic Lore Coding task method;
-- commit message and Lore trailer rules;
-- task lifecycle rules;
-- hierarchical project memory management rules.
-
-The README explains the approach for humans. `AGENTS.md` instructs AI agents how to apply it.
-
-## Task commit sections
-
-### Subject
-
-The first line uses a task type and optional scope:
-
-> Feature(snake): Add timed yellow apples
-
-> Improvement(tetris): Center next-piece preview
-
-> Bug fix(leaderboard): Prevent duplicate submissions
-
-> Refactor(scores): Extract shared formatting helper
-
-The subject describes the completed outcome, preferably as user-visible or system-visible behavior.
-
-### Lore trailers
-
-Each task commit ends with a required `Lore-ID:` trailer and optional repeated `Lore-Link:` trailers.
-
-`Lore-ID:` gives the task a stable logical identity. `Lore-Link:` points to related historical tasks with a short reason.
-
-Use `Lore-Link:` for semantic dependencies, not every nearby line from `git blame`. Good links explain inherited behavior, constraints, design decisions, or test strategy.
-
-Example:
-
-> Lore-ID: LC-20260530-7K3P
-> Lore-Link: LC-20260524-AK3P — introduced persistent obstacle islands that now influence yellow-apple placement
-> Lore-Link: LC-20260525-Q8RD — created the deterministic Snake engine tests used to verify timed-food placement
-
-### Context
-
-`Context:` explains why the task exists.
-
-It focuses on:
-- current state;
-- problem or opportunity;
-- desired behavior or outcome;
-- important constraints;
-- alternatives only when they clarify the decision.
-
-Implementation details must be out of `Context:` unless they explain a constraint or rejected direction.
-
-Example:
-
-> Context:
+#### 👨 >
+> Start a new task.
 > 
-> The Tetris sidebar preview rendered the next tetromino inside a visible 4x4 grid using the tetromino's source coordinates. That made most next pieces appear aligned toward the top-left of the preview box, and the empty grid cells made odd- and even-sized pieces feel inconsistently placed.
+> [goal or description, the more detail the better]
+
+Optional refinements:
+
+#### 👨 >
+> Change ABC.
+>
+> ...
 > 
-> The desired behavior is for the next-piece preview to look visually centered while preserving the existing tetromino definitions and gameplay behavior.
+> Remove XYZ.
+
+When you are happy with the result:
+
+#### 👨 >
+> Finalize the task.
+
+Agent will provide a task description in the Lore Coding format. Then...
+
+Commit.
+Repeat.
+Profit!
+
+## The proposed approach
+
+Lore Coding uses a set of ideas that each have value on their own, but become especially powerful when used together:
+
+- **Atomic changes.** Each meaningful change is treated as a single task, an atomic unit of development effort.
+- **Issue-aware commit messages.** Normal commit history usually briefly answers what changed. Lore Coding enhances Git commit messages by adding a mandatory set of sections that describe the work in great detail: why code changed, how it changed, how it was verified.
+- **Intent graph.** Lore Coding turns structured task commits and repository history into an intent graph: a long-lasting record of earlier decisions that matter. This is achieved by introducing a special links format that agents follow during codebase exploration.
+- **Hierarchical working memory.** Lore Coding uses `README.md` and `MEMORY.md` files for different audiences:
+  - `README.md` explains the project for humans
+  - `MEMORY.md` files provide compact, durable context for agents before they read detailed task history. The hierarchy of memory files serves as a versioned notebook with up-to-date information about the current state of a project.
+- **Emphasis on verification.** Tests are no longer optional. This becomes especially powerful when test coverage is enforced and agents are required to maintain it at a high level.
+- **Software development guidelines.** These cover software engineering best practices, handling uncertainty, tool usage, architecture design, and maintaining a reliable project structure.
+- **Assumption management.** Instead of silently filling gaps in the prompt, agents must separate safe assumptions from material or blocking ones, justify important decisions with repository evidence, and ask for clarification when the risk is too high.
 
 
-### Implementation
+## Is it a "silver bullet"?
 
-`Implementation:` explains what changed.
+No, because it requires some discipline, and, most importantly, you have to get tasks from somewhere.
 
-It is specific enough that a future reader can understand the solution without reading the whole diff. Implementation may include design rationale when the chosen layer or approach matters.
+The proposed methodology does **not** work **like this**:
 
-Example:
+#### 👨 >
+> Start a new task:
+> Create a clone of my favourite product XYZ.
 
-> Implementation:
-> 
-> Updated `src/components/tetris-game.tsx` so the next-piece preview computes the bounding box of the current next tetromino, normalizes its cells to that local box, and positions the four rendered blocks around the center of the preview square.
->  
-> Kept the change local to the sidebar preview instead of changing `getTetrominoPreviewCells`, because the piece definitions were already correct and only the presentation needed different positioning.
+Agents are designed to work on measurable pieces of work. At the moment, you cannot tell them a simple command and expect that after two months of work they return with a meaningful result.
 
+Lore Coding works best when you are able to think top-down: to design a system as a composition of subsystems, and to build those subsystems from individual, possibly shared, components with well-defined responsibilities and boundaries. It does require some skill. Nevertheless, you can ask your favourite LLM in Pro Max Extra High GT mode to create such a breakdown for you.
 
-### Verification
+Each task you work on captures a fragment of how you think. It serves as a log of your preferences: what you like, what you dislike, and how you tend to make decisions. The more tasks you accumulate, the better agents can adapt and approach future tasks with that past experience in mind.
 
-`Verification:` explains how the completed task was checked.
+## Quick start
 
-It is honest, concrete, reproducible, and behavior-specific. 
+### Project setup
 
-Example:
-> Verification:
-> - Opened Classic Tetris in the browser and verified the next-piece preview renders on a plain background with exactly four visible tetromino blocks.
-> - Verified that the preview no longer shows empty board cells and that the measured piece center is aligned with the preview center within sub-pixel tolerance.
-> - Compared desktop and mobile-width views and verified the preview stayed centered in both layouts.
+#### 1) Install `AGENTS.md`
 
-## Task types
+#### If your project does not have an `AGENTS.md` file:
 
-| Type | Use for |
-|---|---|
-| `Feature:` | New user-visible or system-visible capability |
-| `Improvement:` | Better existing behavior without a distinct new capability |
-| `Bug fix:` | Broken, incorrect, or unintended behavior |
-| `Refactor:` | Implementation restructuring with no intended behavior change |
-| `Revert:` | Undoing a previous change |
-| `Formatting:` | Formatting-only change |
-| `Mechanical:` | Minor mechanical change with no intended behavior change |
-| `Dependency:` | Dependency addition, removal, or update |
-| `Database:` | Schema, migration, index, backfill, or data-shape change |
-| `CI:` | CI/CD, release automation, or automated checks |
-| `Build:` | Build tooling, bundling, compilation, or build scripts |
-| `Test:` | Test-only change |
-| `Docs:` | Documentation-only change |
-| `Config:` | Project, environment, tool, or runtime configuration |
-| `Security:` | Security, privacy, permissions, or abuse resistance |
-| `Performance:` | Speed, memory, bundle size, latency, or scalability |
-| `Accessibility:` | Accessibility behavior or semantics |
-| `Chore:` | Repository maintenance that does not fit another type |
+Copy `AGENTS.md` from this repository into your project root.
 
-When a task touches several categories, the primary purpose is chosen. Optionally, an agent may offer to split the work into several commits.
+#### If your project already has an `AGENTS.md` file:
 
-## Project memory
+If it contains some general workflows or principles you want to keep, create a new top-level `#` section at the bottom of Lore Coding `AGENTS.md` with an appropriate heading and append it there. Please make sure that your instructions do not contradict to Lore Coding's.
 
-Lore Coding uses `README.md` and `MEMORY.md` files for different audiences:
+If it contains only project description, corner cases, implicit assumptions, and any other project-specific details, it is better to move these into `README.md` and `MEMORY.md`. You can ask your favorite AI agent to do this for you.
 
-- `README.md` explains the project and method for humans using or evaluating it.
-- `MEMORY.md` files provide compact durable context for agents and maintainers before they read detailed task history.
+#### 👨 >
+> This repository contains an `old-AGENTS.md` file that was used before introducing Agentic Lore Coding. Please analyze it carefully and move human-facing information to `README.md` and agent-specific data to `MEMORY.md`. If necessary, follow the hierarchical Lore Coding memory rules and create memory files in subfolders. You can remove `old-AGENTS.md` when you are done.
 
-Large projects can use hierarchical memory: the root `MEMORY.md` keeps repository-wide context, while folder-level `MEMORY.md` files describe local architecture, constraints, patterns, and testing strategy for the folder they live in.
+After doing this, finalize the task and make a separate commit.
+
+#### 👨 >
+> Finalize the task.
+
+#### If your project has a large established codebase:
+
+Ask an AI agent to scan the project and create hierarchical memory files, following guidelines described in `AGENTS.md`.
+
+#### 2) Set up a git hook that verifies integrity of commit messages
+
+!!! TODO: finish this section
+
+#### 3) Start using Agentic Lore Coding
+
+There are basically two modes of operation for Agentic Lore Coding: `manual` and `automatic`.
+
+Manual mode requires constant interaction with agents but provides better results, especially at the beginning, when agents do not yet know your preferences.
+
+Automatic mode requires careful planning and detailed specs. It involves using subagents, which allow you to accomplish a lot (hours and possibly days) of work without interruptions.
+
+It is highly recommended that you bootstrap your project in the `manual` mode, then start doing refactoring tasks in `automatic` mode (see below), and finally start using agentic planning mode to create tasks and execute them with subagents that follow Lore Coding rules.
+
+## Development loops
+
+There are two development loops involved in Agentic Lore Coding.
+
+1) The `inner loop` is built around a single AI agent session, and comprises one or several pairs of `Start a new task`, `Finilize the task` commands.
+
+2) The `outer loop` is about your project health:
+ - Implement 3-10 feature tasks
+ - Make a broad QA session. Yes, someone must check your application to ensure that everything is aligned with your vision
+ - If required, make a small session of bugfixes/improvements tasks
+ - Ask an agent whether some refactoring is needed
+ - Implement 1-3 refactoring tasks
+ - Repeat
+
+The fun part is that you do not necessarily have to execute this `outer loop` yourself; a coordinating agent can do it for you.
 
 ## Relationship to similar ideas
 
@@ -257,17 +162,6 @@ The trade-off is deliberate.
 
 Lore Protocol is stronger when teams want machine-validated metadata and dedicated query tooling. Lore Coding is easier to adopt when a team wants a low-friction method that works with ordinary Git and an AI agent that follows repository instructions.
 
-## Limitations and trade-offs
-
-Lore Coding is intentionally lightweight, which means:
-
-- it relies on agent discipline and review unless validation tooling is added;
-- `Lore-ID:` and `Lore-Link:` trailers improve logical traceability, but the graph still depends on meaningful task boundaries and link reasons;
-- the intent graph is easy to inspect manually, but less queryable than a dedicated metadata system;
-- the quality of the graph depends on task size, commit-message quality, and verification discipline.
-
-Projects with heavier needs can add validation scripts, generated indexes, query tools, or visualization tooling later.
-
 ## Project status
 
 Agentic Lore Coding is an experimental development protocol.
@@ -277,6 +171,7 @@ It is intended to be practical rather than academic: simple enough to use with o
 ## License
 
 MIT License. See [`LICENSE`](LICENSE).
+
 
 [lore-protocol]: https://github.com/Ian-stetsenko/lore-protocol
 [lore-paper]: https://arxiv.org/abs/2603.15566
