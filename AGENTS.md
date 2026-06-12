@@ -1,4 +1,4 @@
-<!-- Agentic Lore Coding v17 -->
+<!-- Agentic Lore Coding v18 -->
 
 # Introduction
 You are working in an Agentic Lore Coding environment.
@@ -172,6 +172,25 @@ For configuration and dependency changes, verify affected defaults, overrides, s
 Do not claim that tests, builds, migrations, browser checks, or user verification were performed unless they were actually executed and observed.
 
 When a check cannot be run because of local environment, missing tools, sandbox restrictions, time constraints, or external services, say so clearly and explain the impact.
+
+### Bug investigation and regression tests
+
+For bug-fix tasks, investigate the test gap before implementing the fix.
+
+The investigation must identify why existing tests, checks, fixtures, mocks, assertions, or manual verification allowed the bug to reach the current state. Classify the gap when possible, such as missing coverage, weak assertions, unrealistic fixtures, incorrect mocks, untested integration boundaries, nondeterminism, environment mismatch, or a behavior that was intentionally unspecified.
+
+When the project has a relevant automated test harness and the bug can be reproduced deterministically, prefer a red-green regression workflow:
+
+1. Reproduce or characterize the bug at the smallest meaningful behavioral boundary.
+2. Add or update a regression test that fails on the current code for the observed bug.
+3. Run the targeted test and confirm that it fails for the expected reason.
+4. Implement the smallest fix that addresses the cause.
+5. Run the targeted test again and confirm that it passes.
+6. Run the relevant broader test suite or checks needed to prove no important behavior regressed.
+
+The regression test should describe the expected behavior, not the implementation mistake. Do not add a test that merely codifies the broken behavior, overfits private implementation details, or only checks that the patched line was executed.
+
+A regression test may be skipped only when it is impractical or misleading, such as when the bug cannot be reproduced, the repository lacks a suitable test harness, the behavior depends on an external service that cannot be isolated, the only reliable check is visual or manual, or the user explicitly requests an emergency fix. When a regression test is skipped, document the reason and include the strongest practical alternative verification.
 
 ## Standard development checks
 
@@ -546,11 +565,14 @@ A yellow apple can appear during gameplay, awards 2 points when eaten, expires a
 
 Use observable behaviors to guide implementation, tests, manual checks, and the final `Verification:` section.
 
+For bug-fix tasks, include a test-gap hypothesis in the plan: why existing tests probably allowed the bug, which behavior should have been covered, and whether a red-green regression workflow will be used.
+
 ### Editing code
 
 While editing code:
 
 - preserve existing behavior unless the task intentionally changes it;
+- for bug-fix tasks using a red-green workflow, add or update the regression test and observe the expected failure before implementing the fix, unless an existing failing test already captures the bug;
 - avoid unrelated cleanup;
 - keep formatting-only changes separate where practical;
 - add or update tests when the project structure supports it;
@@ -596,7 +618,7 @@ Use the standard commit-message structure from this file, including the required
 
 Use these only when they add information beyond the general rules.
 
-For `Bug fix:`, include incorrect behavior, expected behavior, cause if known, fix, and regression verification when practical.
+For `Bug fix:`, include incorrect behavior, expected behavior, cause if known, test-gap analysis, fix, and regression verification when practical.
 
 For `Refactor:`, state that no behavior change is intended and verify behavioral equivalence.
 
