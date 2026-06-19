@@ -109,7 +109,7 @@ Ask an AI agent to scan the project and create hierarchical memory files, follow
 
 There are basically two modes of operation for Agentic Lore Coding: `manual` and `automatic`.
 
-Manual mode requires constant interaction with agents but provides better results, especially at the beginning, when agents do not yet know your preferences.
+[Manual mode](/docs/manual_mode.md) requires constant interaction with agents but provides better results, especially at the beginning, when agents do not yet know your preferences.
 
 Automatic mode requires careful planning and detailed specs. It involves using subagents, which allow you to accomplish a lot (hours and possibly days) of work without interruptions.
 
