@@ -73,17 +73,15 @@ Lore Coding works best when you are able to think top-down: to design a system a
 
 Each task you work on captures a fragment of how you think. It serves as a log of your preferences: what you like, what you dislike, and how you tend to make decisions. The more tasks you accumulate, the better agents can adapt and approach future tasks with that past experience in mind.
 
-## Quick start
-
-### Project setup
+## Project setup
 
 #### 1) Install `AGENTS.md`
 
-#### If your project does not have an `AGENTS.md` file:
+#### 1a) If your project does not have an `AGENTS.md` file:
 
 Copy `AGENTS.md` from this repository into your project root.
 
-#### If your project already has an `AGENTS.md` file:
+#### 1b) If your project already has an `AGENTS.md` file:
 
 If it contains some general workflows or principles you want to keep, create a new top-level `#` section at the bottom of Lore Coding `AGENTS.md` with an appropriate heading and append it there. Please make sure that your instructions do not contradict to Lore Coding's.
 
@@ -92,14 +90,14 @@ If it contains only project description, corner cases, implicit assumptions, and
 #### 👨 >
 > This repository contains an `old-AGENTS.md` file that was used before introducing Agentic Lore Coding. Please analyze it carefully and move human-facing information to `README.md` and agent-specific data to `MEMORY.md`. If necessary, follow the hierarchical Lore Coding memory rules and create memory files in subfolders. You can remove `old-AGENTS.md` when you are done.
 
-After doing this, finalize the task and make a separate commit.
+#### 1c) If your project has a large established codebase:
+
+Ask your AI agent to create memory files. They will serve as a starting navigation point until you accumulate some Lore Coding history.
 
 #### 👨 >
-> Finalize the task.
+> Please analyze this codebase carefully and move human-facing information to `README.md` and agent-specific data to `MEMORY.md`. If necessary, spawn explorer subagents. Follow the hierarchical Agentic Lore Coding memory rules and create memory files in subfolders. 
 
-#### If your project has a large established codebase:
-
-Ask an AI agent to scan the project and create hierarchical memory files, following guidelines described in `AGENTS.md`.
+Review the results and possibliy make more iterations.
 
 #### 2) Set up a git hook that verifies integrity of commit messages
 
@@ -155,7 +153,21 @@ Hook's script can be launched manually. You can see how by executing:
 node .githooks/lore-coding.mjs --help
 ```
 
-#### 3) Start using Agentic Lore Coding
+#### 3) Make the first lore coding commit
+
+#### 👨 >
+>I added `AGENTS.md` and a corresponding git hook.
+>
+>Finalize it as a task.
+
+or
+
+#### 👨 >
+>I added `AGENTS.md`, Lore Coding memory files and a corresponding git hook.
+>
+>Finalize it as a task.
+
+## Start using Agentic Lore Coding
 
 There are basically two modes of operation for Agentic Lore Coding: `manual` and `automatic`.
 
