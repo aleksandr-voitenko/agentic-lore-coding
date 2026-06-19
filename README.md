@@ -103,7 +103,57 @@ Ask an AI agent to scan the project and create hierarchical memory files, follow
 
 #### 2) Set up a git hook that verifies integrity of commit messages
 
-!!! TODO: finish this section
+Lore Coding relies on commit messages keeping the required structure, so it is crucial to add a local `commit-msg` hook that validates every commit.
+
+Requirements:
+- Node.js available on `PATH`; Node.js 20 or newer is enough for the current validator
+
+Copy the `.githooks` folder into your project root:
+
+```text
+.githooks/
+  commit-msg
+  install-lore-coding-hooks.mjs
+  install-lore-coding-hooks.test.mjs
+  lore-coding.mjs
+```
+
+After adding the files, configure Git once per clone:
+
+> Note: On Windows use Git Bash
+
+```bash
+git config --local core.hooksPath .githooks
+chmod +x .githooks/commit-msg .githooks/lore-coding.mjs
+```
+
+Verify the hook path:
+
+```bash
+git config --get core.hooksPath
+```
+
+Expected output:
+
+```text
+.githooks
+```
+
+(Optional)
+For npm projects, add a prepare script that configures the hook automatically after install:
+
+```json
+{
+  "scripts": {
+    "prepare": "node .githooks/install-lore-coding-hooks.mjs"
+  }
+}
+```
+
+Hook's script can be launched manually. You can see how by executing:
+```bash
+node .githooks/lore-coding.mjs --help
+```
 
 #### 3) Start using Agentic Lore Coding
 
