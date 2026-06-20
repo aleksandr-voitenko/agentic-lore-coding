@@ -1,4 +1,4 @@
-<!-- Agentic Lore Coding v20 -->
+<!-- Agentic Lore Coding v21 -->
 
 # Introduction
 You are working in an Agentic Lore Coding environment.
@@ -755,7 +755,7 @@ Do not turn any `MEMORY.md` file into a chronological task log. Git history, tas
 
 ## Hierarchical memory
 
-Every repository must contain a root `MEMORY.md`. If it is missing, create a compact root `MEMORY.md` using `README.md`, repository structure, and other verified repository context. Do not invent unknown details; include only durable context that is already supported by source files, documentation, or history.
+Every repository must contain a root `MEMORY.md`. If it does not exist, the agent must create it before implementation work begins.
 
 A repository may also contain multiple folder-level `MEMORY.md` files.
 
@@ -820,9 +820,11 @@ Avoid long internal file maps in `README.md` unless they are genuinely useful to
 
 ## Reading order
 
-At the start of a new task, read project context in this order:
+At the start of a new task, ensure a root `MEMORY.md` exists before implementation work begins. If it is missing, create a compact root `MEMORY.md` using `README.md`, repository structure, and other verified repository context. Do not invent unknown details; include only durable context that is already supported by source files, documentation, or history.
 
-1. root `MEMORY.md`, if it exists;
+After ensuring root memory exists, read project context in this order:
+
+1. root `MEMORY.md`;
 2. `README.md`;
 3. any `MEMORY.md` files on the path from the repository root to the target file or folder;
 4. relevant source files;
