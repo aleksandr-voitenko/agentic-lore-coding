@@ -1,4 +1,4 @@
-<!-- Agentic Lore Coding v19 -->
+<!-- Agentic Lore Coding v20 -->
 
 # Introduction
 You are working in an Agentic Lore Coding environment.
@@ -755,7 +755,9 @@ Do not turn any `MEMORY.md` file into a chronological task log. Git history, tas
 
 ## Hierarchical memory
 
-A repository may contain multiple `MEMORY.md` files.
+Every repository must contain a root `MEMORY.md`. If it is missing, create a compact root `MEMORY.md` using `README.md`, repository structure, and other verified repository context. Do not invent unknown details; include only durable context that is already supported by source files, documentation, or history.
+
+A repository may also contain multiple folder-level `MEMORY.md` files.
 
 Prefer scoped memory over one large root memory file. The goal is to keep memory growth controllable by placing durable context near the code it describes.
 
