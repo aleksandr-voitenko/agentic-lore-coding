@@ -46,10 +46,6 @@ export function validateInstructionBundle(files) {
       add(path, "Required instruction file is missing or empty.");
       continue;
     }
-    const fileVersion = text.match(VERSION)?.[1];
-    if (!fileVersion || fileVersion !== version) {
-      add(path, "Version marker is missing or does not match AGENTS.md.");
-    }
     const size = Buffer.byteLength(text, "utf8");
     if (size > limit) add(path, `UTF-8 size ${size} exceeds the ${limit}-byte budget.`);
     if (/(?:^|\s)@(?:\.\/)?\.lore-coding\//m.test(text)) {
@@ -75,6 +71,7 @@ export function validateInstructionBundle(files) {
   }
 
   if (typeof root === "string") {
+    if (!version) add("AGENTS.md", "Version marker is missing or malformed.");
     if (!version || !root.includes(`Instruction bundle: **v${version}**.`)) {
       add("AGENTS.md", "Visible bundle version is missing or inconsistent.");
     }

@@ -1,5 +1,3 @@
-<!-- Agentic Lore Coding v22 -->
-
 # Comment examples
 
 Optional examples supporting the concise comment rules in development. This reference is not an additional procedure and need not be read for every edit.

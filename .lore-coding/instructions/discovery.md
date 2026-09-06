@@ -1,5 +1,3 @@
-<!-- Agentic Lore Coding v22 -->
-
 # Discovery
 
 Read before substantive repository investigation, review, or planning. This module governs reading context; it does not authorize edits, test execution, or finalization. All `.lore-coding/` paths below are repository-root-relative.

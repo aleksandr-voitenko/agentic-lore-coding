@@ -1,5 +1,3 @@
-<!-- Agentic Lore Coding v22 -->
-
 # Verification
 
 Read before planning verification, implementing a change, running checks, or reporting completion. In particular, bug-fix regression rules apply before the fix, not only at the end. This module does not authorize code edits or Git writes.

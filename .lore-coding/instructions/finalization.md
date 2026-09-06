@@ -1,5 +1,3 @@
-<!-- Agentic Lore Coding v22 -->
-
 # Finalization
 
 Read when finalizing a task or preparing its final task record. Load `.lore-coding/references/commit-format.md` before writing or validating that record. Do not load this module merely to read historical commits.

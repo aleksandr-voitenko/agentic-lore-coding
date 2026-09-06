@@ -1,5 +1,3 @@
-<!-- Agentic Lore Coding v22 -->
-
 # Memory writing
 
 Read before creating, updating, splitting, or compacting `MEMORY.md`. Reading existing memory does not activate this module. Memory writes require an authorized implementation or documentation task; read-only discovery must not create files.

@@ -3,7 +3,7 @@
 **Agentic Lore Coding** is a Git-native structured agent workflow (and protocol) for AI-assisted software development.
 It enables highly automated software development, where you, as a developer, only need to define high-level constraints and follow simple guidelines.
 
-The workflow is defined by a small `AGENTS.md` entry point and the matching `.lore-coding/` instruction bundle. Agents read detailed procedures before the operations they govern, rather than loading every rule at discovery. See [Modular agent instructions](docs/modular-instructions.md) for the boundaries, migration guide, and evaluation scenarios.
+The workflow is defined by a small `AGENTS.md` entry point and the matching `.lore-coding/` instruction bundle. Agents read detailed procedures before the operations they govern, rather than loading every rule at discovery. See [Modular agent instructions](docs/modular-instructions.md) for the module map and loading rules.
 
 ## What problems does it solve?
 
@@ -74,7 +74,7 @@ Each task you work on captures a fragment of how you think. It serves as a log o
 
 ### 1) Install the complete instruction bundle
 
-Copy `AGENTS.md` and the entire `.lore-coding/` directory from the **same revision** into your project root. Do not install the entry file on its own or mix module versions.
+Copy `AGENTS.md` and the entire `.lore-coding/` directory from the **same revision** into your project root. Do not install the entry file on its own. The bundle version is recorded only in `AGENTS.md`; individual modules are unversioned.
 
 ```text
 AGENTS.md
@@ -109,7 +109,7 @@ For Claude Code, merge this line into a root `CLAUDE.md` without overwriting exi
 @AGENTS.md
 ```
 
-Do **not** import every module into the startup file. See the [agent setup notes and provider references](docs/modular-instructions.md#agent-setup-and-limits) for Codex, Claude Code, and instruction-loading limits. The notes describe setup, not a guarantee of compliance on every model or agent version.
+Do **not** import every module into the startup file. The [module reference](docs/modular-instructions.md) explains when each procedure is needed. Verify instruction loading in your agent; the file layout alone does not guarantee compliance.
 
 ### 3) Set up commit-message validation
 
@@ -167,7 +167,13 @@ From a checkout of this methodology repository, the read-only structural checker
 node scripts/check-instruction-bundle.mjs /path/to/your/project
 ```
 
-It checks module availability, routing, version consistency, and the distribution's size budgets. It does not execute the instructions or prove agent behavior. See [maintenance checks and live evaluation scenarios](docs/modular-instructions.md#maintenance-checks).
+It checks module availability, routing, the root bundle version, and the distribution's size budgets. It does not compare module versions, detect every partial upgrade, execute the instructions, or prove agent behavior.
+
+To run the checker's regression tests from this repository:
+
+```bash
+node --test scripts/check-instruction-bundle.test.mjs
+```
 
 #### 👨 >
 > I added the matching `AGENTS.md`, `.lore-coding/` instruction bundle, and commit-message hook. Review the setup and finalize it as a task.

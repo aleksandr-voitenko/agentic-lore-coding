@@ -1,5 +1,3 @@
-<!-- Agentic Lore Coding v22 -->
-
 # Lore commit format
 
 Read before writing or validating a Lore task message. Historical readers need only the interpretation guide in discovery. This specification does not authorize staging or committing.

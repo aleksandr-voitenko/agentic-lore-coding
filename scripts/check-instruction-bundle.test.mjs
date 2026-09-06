@@ -37,10 +37,33 @@ test("an empty required module is rejected", () => {
   hasError(files, discovery, /missing or empty/);
 });
 
-test("mixed instruction versions are rejected", () => {
+test("modules do not require individual version markers", () => {
   const files = fixture();
-  files.set(discovery, files.get(discovery).replace(/Coding v\d+/, "Coding v999999"));
-  hasError(files, discovery, /Version marker/);
+  for (const [path, text] of files) {
+    if (path !== "AGENTS.md") files.set(path, text.replace(/^<!-- Agentic Lore Coding v\d+ -->\r?\n(?:\r?\n)?/, ""));
+  }
+  assert.deepEqual(validateInstructionBundle(files), []);
+});
+
+test("legacy module labels are not compared with the root version", () => {
+  const files = fixture();
+  const text = files.get(discovery).replace(/^<!-- Agentic Lore Coding v\d+ -->\r?\n(?:\r?\n)?/, "");
+  files.set(discovery, "<!-- Agentic Lore Coding v999999 -->\n\n" + text);
+  assert.deepEqual(validateInstructionBundle(files), []);
+});
+
+test("a root bundle version change does not require module edits", () => {
+  const files = fixture();
+  files.set("AGENTS.md", files.get("AGENTS.md")
+    .replace(/Coding v\d+/, "Coding v999999")
+    .replace(/Instruction bundle: \*\*v\d+\*\*\./, "Instruction bundle: **v999999**."));
+  assert.deepEqual(validateInstructionBundle(files), []);
+});
+
+test("distributed modules do not repeat the bundle version marker", () => {
+  for (const [path, text] of fixture()) {
+    if (path !== "AGENTS.md") assert.doesNotMatch(text, /<!-- Agentic Lore Coding v\d+ -->/, path);
+  }
 });
 
 test("a missing root version marker is rejected", () => {
@@ -136,4 +159,13 @@ test("the existing validator accepts the retained schema and rejects a missing s
   const message = "Docs(instructions): Split task procedures into modules\n\nContext:\nStartup loaded unrelated procedures.\n\nImplementation:\nSeparated operation-specific instructions.\n\nVerification:\nChecked module routing and references.\n\nLore-ID: LC-20260906-MOD1\n";
   assert.equal((await validateLoreCoding(message)).valid, true);
   assert.equal((await validateLoreCoding(message.replace("Verification:", "Testing:"))).valid, false);
+});
+
+
+test("the module reference stays compact and links every module", () => {
+  const text = readFileSync(resolve(root, "docs/modular-instructions.md"), "utf8");
+  assert.ok(Buffer.byteLength(text, "utf8") <= 3 * 1024, "Keep the module reference within 3 KiB.");
+  const linked = [...text.matchAll(/\]\(\.\.\/(\.lore-coding\/[^)]+\.md)\)/g)].map((match) => match[1]);
+  const expected = Object.keys(INSTRUCTION_BUDGETS).filter((path) => path !== "AGENTS.md");
+  assert.deepEqual(linked.sort(), expected.sort());
 });

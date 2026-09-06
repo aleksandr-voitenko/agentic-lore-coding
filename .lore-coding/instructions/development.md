@@ -1,5 +1,3 @@
-<!-- Agentic Lore Coding v22 -->
-
 # Development
 
 Read before forming an implementation plan or editing code, tests, configuration, or documentation. Use the root contract and completed discovery; if context has not been established, load `.lore-coding/instructions/discovery.md` first. Load `.lore-coding/instructions/verification.md` before planning verification or implementing a change, not after the fix.
