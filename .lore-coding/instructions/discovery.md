@@ -4,7 +4,7 @@ Read before substantive repository investigation, review, or planning. This modu
 
 ## Establish scope and task context
 
-Identify the user's question or bounded task, the relevant subsystem, and whether work is read-only or implementation is authorized. `Start a new task` starts a new boundary even within an existing conversation. For finalization, evidence belongs to that boundary plus relevant historical context, not the entire conversation.
+Identify the user's question or bounded task, the relevant subsystem, and whether work is read-only or implementation is authorized. `Start a new task` starts a new boundary even within an existing conversation. For finalization, evidence belongs to that boundary plus relevant historical context, not the entire conversation. When the user starts a task with `Start a new task: ...`, use the text after the colon to infer a draft subject and task type.
 
 Do not convert a vague, contradictory, joke-like, or cross-domain request into an invented feature. If the request does not fit the product, explain the inconsistency, offer one or two plausible interpretations, and ask for clarification. A cheap implementation does not make an assumption safe.
 
@@ -26,7 +26,7 @@ Memory is a current summary, not a chronological task log. Child memory refines 
 
 ## Read task records without loading the authoring specification
 
-Each meaningful change should be explained by an atomic task commit. The commit hash identifies an exact Git object; `Lore-ID` identifies the logical task. A record's sections mean:
+Each meaningful change must eventually be recorded as an atomic structured task commit, only during explicit finalization. The commit hash identifies an exact Git object; `Lore-ID` identifies the logical task. A record's sections mean:
 
 - `Context:` — problem, desired outcome, constraints, material assumptions and decisions.
 - `Implementation:` — what changed and why the implementation approach matters.
@@ -50,7 +50,7 @@ git show --no-patch --format=%B <commit> | git interpret-trailers --parse
 git log --all --grep="Lore-ID: <lore-id>"
 ```
 
-Follow renames when appropriate. Look past formatting/mechanical commits to the earlier meaningful task. When available, use `git blame --ignore-revs-file .git-blame-ignore-revs -- <file>`.
+Follow renames when appropriate. Look past formatting/mechanical commits to the earlier meaningful task when possible. When available, prefer `git blame --ignore-revs-file .git-blame-ignore-revs -- <file>`.
 
 Resolve links by searching for the exact `Lore-ID:` trailer. When several commits have the same ID, inspect them and prefer the one reachable from the current branch unless the task requires another branch. Follow legacy `Links:` sections containing commit hashes when useful. Missing or shallow history is a limitation to report, not permission to fabricate a decision or link.
 

@@ -36,4 +36,4 @@ For a public interface, document non-obvious errors, side effects, lifecycle, co
 
 A local parsing exception belongs near the parser. A shared deployment assumption belongs in project documentation or scoped memory. A task's full history belongs in its commit. Use short pointers between them when helpful, rather than copying the entire history into comments.
 
-A comment-only correction is documentation work. Verify the explanation against current behavior, confirm no unintended runtime change, and describe the corrected misunderstanding in the task record.
+A comment-only correction is documentation work. Verify the explanation against current behavior, confirm no runtime behavior change, and describe the corrected misunderstanding in the task record.

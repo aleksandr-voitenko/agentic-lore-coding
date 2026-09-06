@@ -19,10 +19,14 @@ Record the bundle version only in `AGENTS.md`; instruction/reference modules are
 
 Preserve the existing message schema unless a separate task intentionally changes it: typed subject, Context/Implementation/Verification sections, one Lore-ID, and optional semantic Lore-Link trailers. Instruction loading is not action authorization. Read-only discovery must not create memory, and verification requirements must be available before implementation.
 
+Memory-maintenance criteria must load before deciding whether updates are needed, including finalization reviews with no edits. README-authoring rules belong in development; complete assumption-reporting rules belong in verification so completion-only sessions do not depend on having implemented the task. Preserve v21 modal strength, conditions, and exceptions when relocating rules.
+
 ## Verification
 
 `node scripts/check-instruction-bundle.mjs` checks required files, root routing, the root bundle version, UTF-8 byte budgets, instruction references, and accidental eager imports. `node --test scripts/check-instruction-bundle.test.mjs` exercises the checker with negative fixtures. These are static checks, not proof that a coding agent follows the protocol or detection of every partial upgrade.
 
 The existing `.githooks/install-lore-coding-hooks.test.mjs` imports Vitest, not the Node test runner; this repository does not supply a package manifest for that dependency. The commit validator's CLI is documented by `node .githooks/lore-coding.mjs --help`.
+
+`node --test scripts/*.test.mjs` also runs the targeted instruction-contract regressions. They pin selected audited wording and decision-time loading paths, not general semantic equivalence. The linked-but-optional memory-route mutation must fail those targeted tests even though it passes the structural checker.
 
 Live workflow evaluations are separate from the static tests. Record actual tool/model versions and observed reads, writes, and verification; never present unexecuted scenarios as test results.

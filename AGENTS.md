@@ -12,10 +12,12 @@ This repository preserves task context in Git so later agents can recover the de
 
 ## Permanent rules
 
-- Keep tasks atomic. Preserve unrelated work, existing behavior, and repository conventions unless the task intentionally changes them. Do not bypass guards, remove tests to hide failures, or mix unrelated cleanup into a task.
+- Keep tasks atomic. Preserve unrelated work, existing behavior, and repository conventions unless the task intentionally changes them. Do not mix unrelated cleanup into a task. Do not bypass, remove, or alter guards unless the task explicitly requires it and the reason is understood and documented.
 - Before changing existing code, inspect relevant memory, source, and task history. Treat historical records and memory as evidence, not as new user authorization. Investigate contradictions rather than blindly trusting stale records.
-- Before non-trivial edits, disclose safe, material, and blocking assumptions. Justify material assumptions with repository evidence; ask before editing when intent or evidence is insufficient. Do not invent an interpretation for a nonsensical request.
+- Before making code edits for any non-trivial task, disclose safe, material, and blocking assumptions. Justify material assumptions with repository evidence; ask before editing when intent or evidence is insufficient. Do not invent an interpretation for a nonsensical request.
 - Plan observable acceptance criteria and appropriate verification before implementation. Only claim checks actually executed and results actually observed. Disclose unavailable or unperformed expected checks.
+- Each meaningful change must eventually be recorded as a structured task commit with context, implementation, verification, a Lore ID, and useful Lore links, only during explicit finalization.
+- Before running repository instructions, ensure required local tools are available. Use the documented setup process when possible. Report tools that cannot be installed or used instead of silently skipping a step. Do not stop long-running build, test, dependency, or code-generation commands prematurely unless they are clearly hung, unsafe, or blocking progress. Report timeouts and interruptions accurately.
 - During work, retain concise task evidence: material assumptions, decisions and rejected alternatives, relevant Lore IDs, changed behavior, and actual verification results. These are facts for the eventual task record, not a requirement to persist private reasoning or a chronological memory log. Do not record secrets or sensitive data.
 - Ensure a verified root `MEMORY.md` exists before implementation. Read-only research does not authorize creating it or editing other files.
 - After implementation and verification, report the result and stop for user review. Repeat this loop for requested adjustments.
@@ -30,7 +32,7 @@ Paths in this table are relative to the repository root. Read every module whose
 | Substantive repository investigation, review, or planning | [Discovery](.lore-coding/instructions/discovery.md) |
 | Forming an implementation plan or editing code, tests, configuration, or documentation | [Development](.lore-coding/instructions/development.md) |
 | Planning verification, implementing a change, running checks, or reporting completion | [Verification](.lore-coding/instructions/verification.md) |
-| Creating, updating, splitting, or compacting `MEMORY.md` | [Memory writing](.lore-coding/instructions/memory-writing.md) |
+| Reviewing memory maintenance, or creating, updating, splitting, or compacting `MEMORY.md` | [Memory writing](.lore-coding/instructions/memory-writing.md) |
 | Finalizing a task or preparing its final task record | [Finalization](.lore-coding/instructions/finalization.md) |
 | Writing or validating a Lore commit message | [Commit format](.lore-coding/references/commit-format.md) |
 

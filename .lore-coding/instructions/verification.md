@@ -4,13 +4,13 @@ Read before planning verification, implementing a change, running checks, or rep
 
 ## Plan acceptance evidence
 
-For each important behavior introduced, changed, fixed, or intentionally preserved, plan at least one matching verification step. Prefer automated behavioral tests when the project supports them. Suggest coverage measurement and CI thresholds when useful, but do not treat a coverage percentage as proof of correctness or meaningful assertions.
+For each important behavior introduced, changed, fixed, or intentionally preserved, plan at least one matching verification step. Prefer automated behavioral tests when the project supports them. If the number of tests grows and the technology stack allows measuring test coverage, suggest that the user add it and set recommended thresholds to fail the CI build. Do not treat a coverage percentage as proof of correctness or meaningful assertions.
 
 Use deterministic controls for randomness, timers, generated data, concurrency, retries, and asynchronous behavior when practical. Test observable behavior rather than the private implementation. Prefer complete meaningful output comparisons when they give clearer failures.
 
 ## Bug investigation and regression tests
 
-Before implementing a fix, investigate why existing tests, checks, fixtures, mocks, assertions, or manual verification allowed the bug. Identify the gap when possible: missing coverage, weak assertions, unrealistic fixtures, incorrect mocks, an untested boundary, nondeterminism, environment mismatch, or previously unspecified behavior.
+For bug-fix tasks, investigate the test gap before implementing the fix. The investigation must identify why existing tests, checks, fixtures, mocks, assertions, or manual verification allowed the bug to reach the current state. Classify the gap when possible, such as missing coverage, weak assertions, unrealistic fixtures, incorrect mocks, untested integration boundaries, nondeterminism, environment mismatch, or a behavior that was intentionally unspecified.
 
 When a suitable automated harness exists and reproduction is deterministic, prefer this red-green sequence:
 
@@ -27,18 +27,18 @@ A regression test may be skipped when impractical or misleading: reproduction is
 
 ## Match checks to the task
 
-- UI: check the actual screen, state, and interaction. DOM classes, counts, pixels, screenshots, or console output count only when they demonstrate acceptance behavior. Screenshots must be attached or recoverable; otherwise describe the observed comparison. Use meaningful tolerances, not false precision.
-- APIs, schemas, and data: check request/response behavior, errors, compatibility, migrations/rollback, existing data, documentation, and generated clients or schemas when affected.
+- UI: check the actual screen, state, and interaction. DOM classes, counts, pixels, screenshots, or console output count only when they demonstrate acceptance behavior. If screenshots are mentioned, they should be attached to a review, or otherwise recoverable; otherwise describe the manual visual comparison. Use meaningful tolerances, not false precision.
+- APIs, schemas, and data: check request/response behavior, errors, compatibility, migrations, documentation, and generated clients or schemas when affected. For database tasks, cover migration, rollback, existing data, and new data where practical.
 - Accessibility: check relevant focus, keyboard interaction, semantics, labels, contrast, reduced motion, and screen-reader-visible behavior.
 - Performance: obtain measurements or before/after evidence where practical. Do not infer a performance improvement from code shape alone.
 - Configuration, dependencies, CI, and builds: check defaults and overrides, lockfiles, generated metadata, build files, affected workflows, produced artifacts, and compatibility.
 - Refactors, formatting, and mechanical work: verify the behavior intended to remain unchanged and confirm no unrelated changes were introduced.
 - Test-only work: describe the regression/risk covered and record the exact command and result.
-- Documentation and comments: compare explanations with relevant source and inspect rendered output when applicable. Confirm no accidental changes to runtime code, generated artifacts, or behavior-bearing configuration. A server starting is not by itself documentation or UI verification.
+- Documentation and comments: compare explanations with relevant source and inspect rendered output when applicable. Comment-only work must not change runtime behavior. Confirm no unintended changes to code, generated artifacts, or behavior-bearing configuration. The distinct Docs-task exception for documentation generation affecting runtime artifacts does not turn behavior-changing work into a comment-only task. A server starting is not by itself documentation or UI verification.
 
 ## Standard development checks
 
-Run the normal validation appropriate to the repository and changed files: for example linting, typechecking, building, formatting, dependency/lockfile checks, generated-file consistency, `git diff --check`, or a smoke start. These do not replace behavior-specific acceptance evidence.
+Standard development checks are expected during development, but they are not a substitute for behavior-specific verification. Examples appropriate to the repository and changed files include linting, typechecking, building, formatting, dependency/lockfile checks, generated-file consistency, `git diff --check`, or a smoke start. These do not replace behavior-specific acceptance evidence.
 
 A check is expected when the repository documentation, scripts, task type, changed files, or user request make it the normal validation path. Do not invent an exhaustive list of every possible unrun check.
 
@@ -50,4 +50,14 @@ Only report tests, builds, migrations, browser/manual checks, or user verificati
 
 Keep behavior-to-evidence notes available for review and finalization, including commands, observed outcomes, and limitations. A previous task's reported result is historical evidence, not a check performed in this task. Distinguish static structural checks from live agent behavior or end-to-end tests.
 
-Do not remove or weaken guards to get a passing result. Report unresolved failures and whether the task is safe to proceed. Report material assumptions alongside the completed work as required by the development instructions, then stop for user review unless further operations are explicitly authorized.
+Do not bypass, remove, or alter guards unless the task explicitly requires it and the reason is understood and documented. Report unresolved failures and whether the task is safe to proceed.
+
+### Assumptions in completion reports
+
+When reporting completed work to the user, mention any material assumptions that shaped the solution, unless they were already disclosed in an earlier final/task-completion report for the same task and have not changed. This is an exemption from repeating unchanged disclosures, not a prohibition.
+
+Assumptions disclosed only in planning notes, progress updates, or pre-edit checkpoints do not count as task-completion-report disclosure. Repeat task-shaping assumptions in the final report when they affected behavior, UX, APIs, data, architecture, tests, or user-facing meaning.
+
+Do not include trivial assumptions that did not shape the implementation. If an assumption changed during the work, briefly state both the earlier assumption and the final one. These rules apply to completion-only sessions and reports after handoff or context loss as well as reports immediately following implementation.
+
+Stop for user review after reporting, unless the user explicitly requests a different workflow.

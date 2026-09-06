@@ -28,7 +28,7 @@ End with one required `Lore-ID:` and any useful `Lore-Link:` trailers. Trailers 
 
 ## Task types
 
-Use the most specific type describing the task's primary purpose, not incidental supporting work.
+Use the type that best describes the task's primary purpose, not incidental supporting work. Prefer the most specific accurate type.
 
 ```text
 Feature        New user-visible or system-visible capability
@@ -88,7 +88,7 @@ Explain the completed solution, important affected files/components/interfaces, 
 
 Good: compute the next tetromino's occupied bounding box in the sidebar and position its blocks around the preview center, retaining piece definitions and accessible labeling. This explains the approach and its boundary.
 
-Describe new behavior for features, how the cause is addressed for fixes, and unchanged-behavior intent for refactors. Mention actual memory updates. Put implementation consequences of material assumptions here.
+For behavior changes, describe the new behavior. For bug fixes, explain how the fix addresses the cause. For refactors, state whether behavior is intended to remain unchanged. Mention actual memory updates. Put implementation consequences of material assumptions here.
 
 ## Verification
 
@@ -102,4 +102,10 @@ Never copy example counts as real results. Include failures, expected checks not
 
 ## Type-specific reminders
 
-For a bug fix, include the test gap, cause when known, and regression evidence or justified alternative. For refactors/formatting/mechanical changes, state unchanged-behavior intent and verification. For reverts, link the reverted Lore task when available and explain adjustments. For dependencies, cover compatibility; for databases, migration/rollback and existing data. For CI/build changes, verify the affected workflow or artifact. For test-only tasks, name the risk and exact command/result. For docs, state no runtime change unless generation affects runtime. For security/performance/accessibility, provide evidence specific to the concern.
+Use these only when they add information beyond the general rules.
+
+For `Bug fix:`, include incorrect and expected behavior, cause when known, test-gap analysis, the fix, and regression verification when practical. For `Refactor:`, state that no behavior change is intended and verify behavioral equivalence. For `Revert:`, link the reverted Lore task when available and explain whether the revert was clean or required adjustments.
+
+For `Formatting:` and `Mechanical:`, state that no behavior change is intended. Use `.git-blame-ignore-revs` for large blame-obscuring changes when available. For `Dependency:`, describe changed packages, compatibility work, and affected behavior verification. For `Database:`, cover migration, rollback, existing data, and new data where practical.
+
+For `CI:` and `Build:`, verify the affected workflow, command, or produced output. For `Test:`, name the risk and exact command/result. For `Docs:`, state that no runtime behavior changed unless documentation generation affects runtime artifacts. For `Security:`, `Performance:`, and `Accessibility:`, provide evidence specific to the concern.
