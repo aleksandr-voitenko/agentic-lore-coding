@@ -3,7 +3,7 @@
 **Agentic Lore Coding** is a Git-native structured agent workflow (and protocol) for AI-assisted software development.
 It enables highly automated software development, where you, as a developer, only need to define high-level constraints and follow simple guidelines.
 
-In essence, this project introduces a single `AGENTS.md` file that changes both how you work with agents and how agents do their work.
+The workflow is defined by a small `AGENTS.md` entry point and the matching `.lore-coding/` instruction bundle. Agents read detailed procedures before the operations they govern, rather than loading every rule at discovery. See [Modular agent instructions](docs/modular-instructions.md) for the module map and loading rules.
 
 ## What problems does it solve?
 
@@ -19,7 +19,7 @@ Basically, there are only two commands that trigger complex agentic behavior und
 
 #### 👨 >
 > Start a new task.
-> 
+>
 > [goal or description, the more detail the better]
 
 Optional refinements:
@@ -28,7 +28,7 @@ Optional refinements:
 > Change ABC.
 >
 > ...
-> 
+>
 > Remove XYZ.
 
 When you are happy with the result:
@@ -36,11 +36,9 @@ When you are happy with the result:
 #### 👨 >
 > Finalize the task.
 
-Agent will provide a task description in the Lore Coding format. Then...
+The agent loads the finalization procedure, prepares the Lore task record, stages only the task's changes, and creates the commit. Starting a task does not authorize staging or committing. Finalization does not authorize pushing, tagging, or rewriting history. To prepare only the message, explicitly request a draft without staging or committing.
 
-Commit.
-Repeat.
-Profit!
+Repeat with a new task. Decisions and verification recorded in earlier tasks remain available through Git history.
 
 ## The proposed approach
 
@@ -52,10 +50,9 @@ Lore Coding uses a set of ideas that each have value on their own, but become es
 - **Hierarchical working memory.** Lore Coding uses `README.md` and `MEMORY.md` files for different audiences:
   - `README.md` explains the project for humans
   - `MEMORY.md` files provide compact, durable context for agents before they read detailed task history. The hierarchy of memory files serves as a versioned notebook with up-to-date information about the current state of a project.
-- **Emphasis on verification.** Tests are no longer optional. This becomes especially powerful when test coverage is enforced and agents are required to maintain it at a high level.
+- **Emphasis on verification.** Every task needs appropriate verification. Automated behavioral tests are expected where practical; unavailable checks and justified exceptions must be disclosed. Coverage gates can help detect reductions in measured coverage but do not replace meaningful assertions or review.
 - **Software development guidelines.** These cover software engineering best practices, handling uncertainty, tool usage, architecture design, and maintaining a reliable project structure.
 - **Assumption management.** Instead of silently filling gaps in the prompt, agents must separate safe assumptions from material or blocking ones, justify important decisions with repository evidence, and ask for clarification when the risk is too high.
-
 
 ## Is it a "silver bullet"?
 
@@ -75,38 +72,48 @@ Each task you work on captures a fragment of how you think. It serves as a log o
 
 ## Project setup
 
-#### 1) Install `AGENTS.md`
+### 1) Install the complete instruction bundle
 
-#### 1a) If your project does not have an `AGENTS.md` file:
+Copy `AGENTS.md` and the entire `.lore-coding/` directory from the **same revision** into your project root. Do not install the entry file on its own. The bundle version is recorded only in `AGENTS.md`; individual modules are unversioned.
 
-Copy `AGENTS.md` from this repository into your project root.
+```text
+AGENTS.md
+.lore-coding/
+  instructions/
+    discovery.md
+    development.md
+    verification.md
+    finalization.md
+    memory-writing.md
+  references/
+    commit-format.md
+    comment-examples.md
+```
 
-#### 1b) If your project already has an `AGENTS.md` file:
+The `.lore-coding/` directory contains reusable instructions. Your project's `MEMORY.md` files stay at the root and in relevant source folders; do not copy this repository's own `MEMORY.md` into your application.
 
-If it contains some general workflows or principles you want to keep, create a new top-level `#` section at the bottom of Lore Coding `AGENTS.md` with an appropriate heading and append it there. Please make sure that your instructions do not contradict to Lore Coding's.
-
-If it contains only project description, corner cases, implicit assumptions, and any other project-specific details, it is better to move these into `README.md` and `MEMORY.md`. You can ask your favorite AI agent to do this for you.
+For an existing `AGENTS.md`, preserve a backup while merging repository-specific safety, build, test, and workflow rules into the new setup. Keep permanent additions concise. Move project descriptions and durable architectural context into README/scoped memory where appropriate, without discarding local requirements.
 
 #### 👨 >
-> This repository contains an `old-AGENTS.md` file that was used before introducing Agentic Lore Coding. Please analyze it carefully and move human-facing information to `README.md` and agent-specific data to `MEMORY.md`. If necessary, follow the hierarchical Lore Coding memory rules and create memory files in subfolders. You can remove `old-AGENTS.md` when you are done.
+> This repository contains an `old-AGENTS.md` file from before the modular Agentic Lore Coding setup. Migrate human-facing information into `README.md` and durable project context into the appropriate `MEMORY.md` files. Preserve repository-specific workflow and safety rules in the new instructions without duplicating the reusable Lore modules. Review the migration before removing the backup.
 
-#### 1c) If your project has a large established codebase:
+For an established codebase, ask the agent to create compact memory from verified repository context before implementation. Read-only exploration must not create memory files without authorization.
 
-Ask your AI agent to create memory files. They will serve as a starting navigation point until you accumulate some Lore Coding history.
+### 2) Ensure your agent loads the entry point
 
-#### 👨 >
-> Please analyze this codebase carefully and move human-facing information to `README.md` and agent-specific data to `MEMORY.md`. If necessary, spawn explorer subagents. Follow the hierarchical Agentic Lore Coding memory rules and create memory files in subfolders. 
+Use your agent's repository-instruction mechanism to load the root `AGENTS.md`. The entry point explicitly routes later file reads; `.lore-coding/` is not an automatic discovery directory.
 
-Review the results and possibliy make more iterations.
+For Claude Code, merge this line into a root `CLAUDE.md` without overwriting existing instructions:
 
-#### 2) Set up a git hook that verifies integrity of commit messages
+```markdown
+@AGENTS.md
+```
 
-Lore Coding relies on commit messages keeping the required structure, so it is crucial to add a local `commit-msg` hook that validates every commit.
+Do **not** import every module into the startup file. The [module reference](docs/modular-instructions.md) explains when each procedure is needed. Verify instruction loading in your agent; the file layout alone does not guarantee compliance.
 
-Requirements:
-- Node.js available on `PATH`; Node.js 20 or newer is enough for the current validator
+### 3) Set up commit-message validation
 
-Copy the `.githooks` folder into your project root:
+Lore Coding relies on structured task commits. Copy the `.githooks/` directory from the same distribution. The current validator needs Node.js 20 or newer on `PATH`.
 
 ```text
 .githooks/
@@ -116,29 +123,25 @@ Copy the `.githooks` folder into your project root:
   lore-coding.mjs
 ```
 
-After adding the files, configure Git once per clone:
+First inspect any existing hook configuration:
 
-> Note: On Windows use Git Bash
+```bash
+git config --show-origin --get core.hooksPath
+```
+
+No output with exit status 1 means no value is configured. If an existing hook manager or hook path is present, integrate the Lore validator with it rather than replacing it. Preserve existing hooks and `prepare` scripts.
+
+If no hook path is configured, configure this clone (use Git Bash on Windows):
 
 ```bash
 git config --local core.hooksPath .githooks
 chmod +x .githooks/commit-msg .githooks/lore-coding.mjs
-```
-
-Verify the hook path:
-
-```bash
 git config --get core.hooksPath
 ```
 
-Expected output:
+The final command should print `.githooks`. Review any existing `.git/hooks` hooks before switching paths; they are not copied automatically.
 
-```text
-.githooks
-```
-
-(Optional)
-For npm projects, add a prepare script that configures the hook automatically after install:
+For npm projects, the supplied installer can configure the local path during `prepare`. Merge the command into an existing script instead of replacing it:
 
 ```json
 {
@@ -148,24 +151,34 @@ For npm projects, add a prepare script that configures the hook automatically af
 }
 ```
 
-Hook's script can be launched manually. You can see how by executing:
+The installer skips conflicting locally configured paths. Inspect effective configuration first, including inherited settings; do not assume the script composes arbitrary hook managers.
+
+To inspect the validator's supported commands:
+
 ```bash
 node .githooks/lore-coding.mjs --help
 ```
 
-#### 3) Make the first lore coding commit
+### 4) Check the bundle and finalize setup
+
+From a checkout of this methodology repository, the read-only structural checker can inspect your installation:
+
+```bash
+node scripts/check-instruction-bundle.mjs /path/to/your/project
+```
+
+It checks module availability, routing, the root bundle version, and the distribution's size budgets. It does not compare module versions, detect every partial upgrade, execute the instructions, or prove agent behavior.
+
+To run the checker's regression tests from this repository:
+
+```bash
+node --test scripts/check-instruction-bundle.test.mjs
+```
 
 #### 👨 >
->I added `AGENTS.md` and a corresponding git hook.
->
->Finalize it as a task.
+> I added the matching `AGENTS.md`, `.lore-coding/` instruction bundle, and commit-message hook. Review the setup and finalize it as a task.
 
-or
-
-#### 👨 >
->I added `AGENTS.md`, Lore Coding memory files and a corresponding git hook.
->
->Finalize it as a task.
+Include any intentionally created project memory in the setup review. Finalization creates the structured commit; ask for a draft-only record explicitly when you intend to commit manually.
 
 ## Start using Agentic Lore Coding
 
@@ -173,15 +186,17 @@ There are basically two modes of operation for Agentic Lore Coding: `manual` and
 
 [Manual mode](/docs/manual_mode.md) requires constant interaction with agents but provides better results, especially at the beginning, when agents do not yet know your preferences.
 
+The linked walkthrough contains historical single-file-era transcripts. Use the current installation above and current finalization behavior; older transcript directions to commit separately are not the current default.
+
 Automatic mode requires careful planning and detailed specs. It involves using subagents, which allow you to accomplish a lot (hours and possibly days) of work without interruptions.
 
-It is highly recommended that you bootstrap your project in the `manual` mode, then start doing refactoring tasks in `automatic` mode (see below), and finally start using agentic planning mode to create tasks and execute them with subagents that follow Lore Coding rules.
+It is recommended that you bootstrap with reviewed manual tasks before delegating batches. A separate automatic-mode walkthrough is not included in this repository yet; instruction modularization alone is not an orchestration system.
 
 ## Development loops
 
 There are two development loops involved in Agentic Lore Coding.
 
-1) The `inner loop` is built around a single AI agent session, and comprises one or several pairs of `Start a new task`, `Finilize the task` commands.
+1) The `inner loop` is built around a single AI agent session, and comprises one or several pairs of `Start a new task`, `Finalize the task` commands.
 
 2) The `outer loop` is about your project health:
  - Implement 3-10 feature tasks
