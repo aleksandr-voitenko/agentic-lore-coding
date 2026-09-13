@@ -3,7 +3,7 @@
 **Agentic Lore Coding** is a Git-native structured agent workflow (and protocol) for AI-assisted software development.
 It enables highly automated software development, where you, as a developer, only need to define high-level constraints and follow simple guidelines.
 
-In essence, this project introduces a single `AGENTS.md` file that changes both how you work with agents and how agents do their work.
+In essence, this project introduces an `AGENTS.md` file and a `.lore-coding/` directory that change both how you work with agents and how agents do their work.
 
 ## What problems does it solve?
 
@@ -75,11 +75,13 @@ Each task you work on captures a fragment of how you think. It serves as a log o
 
 ## Project setup
 
-#### 1) Install `AGENTS.md`
+#### 1) Install `AGENTS.md` and `.lore-coding/`
+
+Install and update `AGENTS.md` and the entire `.lore-coding/` directory together from the same version, keeping both in your project root.
 
 #### 1a) If your project does not have an `AGENTS.md` file:
 
-Copy `AGENTS.md` from this repository into your project root.
+Copy `AGENTS.md` and the entire `.lore-coding/` directory from this repository into your project root.
 
 #### 1b) If your project already has an `AGENTS.md` file:
 
@@ -156,14 +158,14 @@ node .githooks/lore-coding.mjs --help
 #### 3) Make the first lore coding commit
 
 #### 👨 >
->I added `AGENTS.md` and a corresponding git hook.
+>I added `AGENTS.md`, `.lore-coding/`, and a corresponding git hook.
 >
 >Finalize it as a task.
 
 or
 
 #### 👨 >
->I added `AGENTS.md`, Lore Coding memory files and a corresponding git hook.
+>I added `AGENTS.md`, `.lore-coding/`, Lore Coding memory files and a corresponding git hook.
 >
 >Finalize it as a task.
 

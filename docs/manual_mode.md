@@ -6,12 +6,12 @@ The sequence of prompts and outputs below will help you get the idea. I would st
 
 ### Task 1. Initial commit
 ---
-It is assumed that you copied the latest version of the Lore Coding `AGENTS.md` file, set up the commit validation hook, and ready to start your journey.
+It is assumed that you copied matching versions of the Lore Coding `AGENTS.md` file and the entire `.lore-coding/` directory into your project root, set up the commit validation hook, and are ready to start your journey.
 
 Open your favorite AI agent UI and type:
 
 ### 👨 >
-> I added a new `AGENTS.md` file in this repository.
+> I added a new `AGENTS.md` file and the `.lore-coding/` directory in this repository.
 > Please finalize the task.
 
 ### 🤖 🤔
@@ -24,20 +24,20 @@ Open your favorite AI agent UI and type:
 The repository did not yet have an `AGENTS.md` file defining shared development expectations for future coding tasks. Agents needed durable project-level guidance for safe implementation, verification, task traceability, Lore commit formatting, and project memory handling.
 > 
 > Implementation:
-Added root `AGENTS.md` with Agentic Lore Coding instructions.
+Added root `AGENTS.md` and `.lore-coding/` with Agentic Lore Coding instructions.
 > 
-> The file defines software development best practices, the Lore Coding task protocol, required structured commit-message sections, allowed task types, Lore trailer handling, finalization rules, and project memory management guidance for `README.md` and `MEMORY.md` files.
+> Together, these files define software development best practices, the Lore Coding task protocol, required structured commit-message sections, allowed task types, Lore trailer handling, finalization rules, and project memory management guidance for `README.md` and `MEMORY.md` files.
 > 
 > Verification:
-Verified `AGENTS.md` exists and is non-empty.
+Verified `AGENTS.md` and all referenced `.lore-coding/` modules exist and are non-empty.
 > 
-> Verified the document includes the expected top-level sections for software development best practices, Agentic Lore Coding protocol, and project memory management.
+> Verified the instruction bundle covers software development best practices, Agentic Lore Coding protocol, and project memory management, with module-loading rules in `AGENTS.md`.
 > 
 > No runtime tests were run because this is a documentation-only repository instruction addition with no application code changes.
 > 
 > Lore-ID: LC-20260604-R8N4
 
-Now stage the file, use the provided description, and commit the changes. Alternatively, the agent can make a commit on your behalf.
+Now stage the instruction bundle, use the provided description, and commit the changes. Alternatively, the agent can make a commit on your behalf.
 
 ### Task 2. Bootstrapping the repository
 ---
