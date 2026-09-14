@@ -8,9 +8,13 @@ Do not make unsupported guesses. Surface a short standalone `Assumptions:` secti
 
 Safe assumptions are low risk. Material assumptions affect behavior, UX, APIs, data, architecture, tests, or user-facing meaning and must be justified with repository evidence. If the evidence is weak, ambiguous, or based mainly on interpreting the user's intent, treat the assumption as blocking and ask before editing. Treat these as material or blocking assumptions by default: the request seems joke-like, absurd, contradictory, or cross-domain; it adds behavior that does not fit the product; or the implementation is easy but the purpose is unclear. Low implementation risk does not make an assumption safe. If the literal request does not make sense for the product, follow the discovery semantic-sanity gate and proceed only after the user explicitly confirms the oddity is intentional.
 
+Before committing to a plan or choosing expected test results, you must apply the memory checks in `.lore-coding/instructions/discovery.md` to the task-critical claims those decisions depend on.
+
 Before substantial changes, summarize the implementation plan: relevant current behavior and history, observable outcomes to add/change/preserve, important alternatives, verification strategy, and unresolved questions. Ask for missing task context when no safe assumption is supported. For bug fixes, include a test-gap hypothesis and the applicable red-green regression strategy.
 
 Use observable outcomes to guide implementation, tests, manual checks, and the final task record, rather than implementation-only goals.
+
+During implementation or review, if new evidence contradicts a relied-on memory claim, or the scope introduces new task-critical claims, repeat the affected discovery checks before proceeding with dependent work. Revisit the plan, implementation, and expected test results already based on an invalidated claim, and rerun affected verification after corrections. Continue independent work where evidence supports it.
 
 ## Scope, environment, and tooling
 
@@ -64,6 +68,8 @@ Consult `.lore-coding/references/comment-examples.md` only when examples would c
 ## Retain evidence and report for review
 
 Retain task evidence during work as required by the permanent contract.
+
+Before reporting an implementation or documentation task ready for user review, load `.lore-coding/instructions/memory-writing.md`, reconcile task-relevant memory, and retain its review evidence. Read-only reviews report discovered inconsistencies without editing memory.
 
 Before reporting completion, load `.lore-coding/instructions/verification.md` and follow its reporting procedure.
 

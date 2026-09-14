@@ -18,11 +18,19 @@ Read applicable context in this order:
 4. Relevant source, nearby comments/docstrings, tests, configuration, and examples.
 5. Relevant Git history and full task records.
 
-Read memory root-to-leaf. For a task touching several folders, read each applicable chain, not unrelated siblings or descendants. When exploring another folder, check for its memory before editing there. Prefer scoped navigation over reading the whole repository indiscriminately.
+Read memory root-to-leaf. For a task touching several folders, read each applicable chain, not unrelated siblings or descendants. A memory file outside the initially touched paths is relevant when it describes an affected concept; a targeted search for that concept or its old/new names can identify it. Read the applicable memory chain for those matches. When exploring another folder, check for its memory before editing there. Prefer scoped navigation over reading the whole repository indiscriminately.
 
 If root memory is missing, read available README, structure, source, and history to establish verified context. For read-only work, report the gap if relevant but do not create files. Before authorized implementation, load `.lore-coding/instructions/memory-writing.md` and create compact root memory from verified facts. Do not invent missing project details.
 
-Memory is a current summary, not a chronological task log. Child memory refines parent memory. If memory or comments conflict with code, tests, or recent history, investigate the conflict and prefer verified current evidence. Track any necessary documentation correction for authorized work; do not silently expand a read-only task.
+Memory is a current summary, not a chronological task log. Child memory refines parent memory. Use memory to navigate, then verify the claims that matter to the task.
+
+## Verify memory before relying on it
+
+Before a memory claim guides a material task decision, you must check it against relevant current evidence. Focus on task-critical claims: those whose being wrong could change scope, design, behavior, or verification, such as feature status, ownership, invariants, units, timing, and exceptions. Inspect relevant source, actual test assertions, configuration, assets, and history as applicable. A recent edit, passing test, test title, or resolving source link alone does not establish accuracy. This is a targeted check, not a full memory audit.
+
+Distinguish implemented behavior from intended behavior. Current code and observed results provide evidence of what happens; current user requirements, applicable contracts, and still-relevant historical decisions help establish what should happen. A conflict can indicate stale memory, a code regression, an incorrect test, or a change in intent. Investigate before choosing which artifact to correct; do not automatically rewrite memory or tests to match the implementation.
+
+If a task-critical claim remains unverified or contradictory, make the uncertainty explicit and do not base dependent decisions or expected test results on it. Seek clarification when missing intent or evidence blocks those decisions; continue independent work supported by verified evidence. Retain concise source anchors and unresolved gaps for material decisions. Read-only work reports inconsistencies without editing files.
 
 ## Read task records without loading the authoring specification
 
