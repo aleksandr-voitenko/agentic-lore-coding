@@ -6,13 +6,22 @@ Optional examples supporting the concise comment rules in development. This refe
 
 ```ts
 // Keep retries disabled here: the provider may process the original
-// request even when our response times out. See LC-20260617-A1B2.
+// request even when our response times out. Review this policy if the
+// provider's duplicate-request guarantees change; verify our handling
+// before enabling retries.
+// See LC-20260617-A1B2.
 await chargeCustomerOnce(request);
 ```
 
 The comment explains why an apparently useful retry would be unsafe. Use a historical pointer only when a real, relevant task exists; the ID above is illustrative, not a task to copy into another repository.
 
 Other useful subjects include domain rules, invariants, integration quirks, upstream bugs, compatibility, rate limits, ordering, cancellation, caching, resource ownership, privacy, accessibility, performance tradeoffs, rollout/rollback conditions, and generated or vendored boundaries. A useful comment answers which constraint a tempting change would violate.
+
+## Keep decision qualifications during summarization
+
+"We chose X because Y" must not become "Always use X" through summarization. For the provider above, a memory summary could say: "Retries remain disabled for this endpoint because a timeout does not prove rejection. Review this policy if the provider's duplicate-request guarantees change; verify our handling before enabling retries."
+
+A short local comment can point to the actual Lore record for further detail.
 
 ## Avoid syntax narration and routine provenance
 

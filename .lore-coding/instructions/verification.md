@@ -53,6 +53,8 @@ Keep behavior-to-evidence notes available for review and finalization, including
 
 Do not bypass, remove, or alter guards unless the task explicitly requires it and the reason is understood and documented. Report unresolved failures and whether the task is safe to proceed.
 
+Claims that a reconsideration condition has occurred require relevant evidence. Recording a future condition does not require implementing or testing an out-of-scope feature.
+
 ### Assumptions in completion reports
 
 When reporting completed work to the user, mention any material assumptions that shaped the solution, unless they were already disclosed in an earlier final/task-completion report for the same task and have not changed. This is an exemption from repeating unchanged disclosures, not a prohibition.

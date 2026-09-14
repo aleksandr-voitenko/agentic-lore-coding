@@ -64,6 +64,22 @@ Resolve links by searching for the exact `Lore-ID:` trailer. When several commit
 
 Keep the relevant IDs and inherited constraints available for planning and the eventual task record. Generated files, vendored code, lockfiles, binary assets, and external snapshots may not have meaningful line-level history, but their task-level changes should still be understood.
 
+## Check whether historical decisions still apply
+
+Before a historical decision materially guides the task, check its decision context using the evidence and intent checks for memory claims. Apply this to decisions retrieved directly from Git as well as memory summaries.
+
+Look for later relevant records, including incoming Lore links, that revise the decision in the applicable branch history. Search the affected concept and decision, not every task. Read the complete relevant records to establish which decision and scope changed, without treating the whole earlier task as superseded. A newer timestamp or an unexplained code difference does not establish an authorized replacement.
+
+Find incoming links in the current branch with:
+
+```bash
+git log HEAD --fixed-strings --grep="Lore-Link: <lore-id> " --format=fuller
+```
+
+Replace `<lore-id>` with the exact task ID; use the task's target ref instead of `HEAD` when reviewing another branch. Inspect matching records to determine whether they revise the decision or merely refer to it.
+
+Preserve decisions whose basis still applies. If rationale or relevant history is unavailable, or applicability remains uncertain, disclose material gaps and follow the earlier uncertainty rules for dependent work. Continue independent work supported by verified evidence. This does not require reopening every decision or auditing all history.
+
 ## Transition out of discovery
 
 If evidence makes the requested approach incomplete, misleading, or unsuitable, explain the discovery, realistic options, and recommendation before proceeding. Before forming an implementation plan, making edits, or reviewing code, architecture, tests, configuration, or documentation, load `.lore-coding/instructions/development.md`. Load `.lore-coding/instructions/verification.md` before planning or executing checks or implementing a change. Merely reaching the end of discovery does not activate those operations.

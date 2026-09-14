@@ -8,13 +8,13 @@ Do not make unsupported guesses. Surface a short standalone `Assumptions:` secti
 
 Safe assumptions are low risk. Material assumptions affect behavior, UX, APIs, data, architecture, tests, or user-facing meaning and must be justified with repository evidence. If the evidence is weak, ambiguous, or based mainly on interpreting the user's intent, treat the assumption as blocking and ask before editing. Treat these as material or blocking assumptions by default: the request seems joke-like, absurd, contradictory, or cross-domain; it adds behavior that does not fit the product; or the implementation is easy but the purpose is unclear. Low implementation risk does not make an assumption safe. If the literal request does not make sense for the product, follow the discovery semantic-sanity gate and proceed only after the user explicitly confirms the oddity is intentional.
 
-Before committing to a plan or choosing expected test results, you must apply the memory checks in `.lore-coding/instructions/discovery.md` to the task-critical claims those decisions depend on.
+Before committing to a plan or choosing expected test results, you must apply the evidence and applicability checks in `.lore-coding/instructions/discovery.md` to the task-critical memory claims or historical decisions those choices depend on.
 
 Before substantial changes, summarize the implementation plan: relevant current behavior and history, observable outcomes to add/change/preserve, important alternatives, verification strategy, and unresolved questions. Ask for missing task context when no safe assumption is supported. For bug fixes, include a test-gap hypothesis and the applicable red-green regression strategy.
 
 Use observable outcomes to guide implementation, tests, manual checks, and the final task record, rather than implementation-only goals.
 
-During implementation or review, if new evidence contradicts a relied-on memory claim, or the scope introduces new task-critical claims, repeat the affected discovery checks before proceeding with dependent work. Revisit the plan, implementation, and expected test results already based on an invalidated claim, and rerun affected verification after corrections. Continue independent work where evidence supports it.
+During implementation or review, if new evidence contradicts a relied-on memory claim or the basis of a historical decision, or the scope introduces new task-critical claims or decisions, repeat the affected discovery checks before proceeding with dependent work. Revisit the plan, implementation, and expected test results already based on an invalidated claim, and rerun affected verification after corrections. Continue independent work where evidence supports it.
 
 ## Scope, environment, and tooling
 
@@ -31,6 +31,14 @@ When changing dependencies, schemas, generated files, lockfiles, snapshots, conf
 Consider alternatives for changes affecting architecture, behavior, public APIs, data models, dependencies, performance, security, accessibility, deployment, tooling, or maintainability. Preserve backward compatibility for migrations, data models, and APIs when zero-downtime deployment matters. In large codebases, use feature flags or toggles when incomplete, large, risky, or behavior-changing work needs to merge safely before being exposed.
 
 Consider an ADR for significant durable architectural, dependency, API, data, deployment, or security decisions. Present a decision that materially changes task direction to the user before proceeding.
+
+### Decision rationale and reconsideration
+
+Capture decision context when the decision is made or revised, not only during finalization. Do not reconstruct unsupported rationale from the completed implementation.
+
+Express identified reconsideration conditions as observable changes in requirements, evidence, dependencies, or operating conditions, without inventing thresholds, deadlines, or future requirements. Apply the discovery and assumption rules when evidence or intent is missing.
+
+### Interface boundaries
 
 Keep module/package/service/layer boundaries and public interfaces explicit. Prefer minimal intentional APIs and private implementation details. Avoid unclear boolean flags, ambiguous null values, positional mode arguments, magic strings, and unexplained numeric literals when clearer alternatives are practical. Make known state handling exhaustive where practical. Avoid catch-all branches when explicit cases would be safer or clearer.
 
