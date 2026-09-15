@@ -166,3 +166,82 @@ test('module links still refer to the existing modules and do not eagerly import
     for (const match of text.matchAll(/\.lore-coding\/[a-z0-9/-]+\.md\b/g)) assert.ok(expected.has(match[0]), match[0]);
   }
 });
+
+// Second-iteration regressions from the Classic Games trial. These check
+// the written contract, not the truth or quality of a generated agent report.
+function reportLimits(source = files) {
+  contains('verification', [
+    'Identify the evidence directly supporting the main outcome and important preservation requirements.',
+    'Test totals may supplement but must not replace that explanation.',
+    'Include material verification limitations before user review, even if they appeared in progress updates or will appear in the commit record.',
+  ], source);
+}
+
+function finalizationTarget(source = files) {
+  contains('finalization', [
+    'Identify the task the user is asking to finalize from the request and available context.',
+    'Do not assume it is the most recently discussed task or that it owns all remaining changes.',
+    'Ask only when the target or authorized change set remains ambiguous after checking available context.',
+  ], source);
+}
+
+test('assumptions distinguish working premises from explicit requirements and findings', () => {
+  contains('root', [
+    'Use the block for uncertain interpretations and working premises, not explicit user requirements, verified findings, or established workflow obligations.',
+    'Do not invent uncertainty to fill a category.',
+  ]);
+  contains('development', ['Say `None` for empty categories.']);
+});
+
+test('all four material brief categories survive flexible presentation', () => {
+  contains('development', [
+    'These four categories define the material content to cover, not mandatory headings.',
+    'Concise prose must still communicate every category that matters to the task.',
+    '**Outcome:**', '**Preserve:**', '**Boundaries:**', '**Acceptance evidence:**',
+  ]);
+});
+
+test('inherited requirements have a source and are separated from their implementation', () => {
+  contains('development', [
+    'When an inherited requirement materially affects the work, identify its source and distinguish the requirement from the chosen solution.',
+    'For example, preserving saved replay outcomes is a requirement; introducing a new replay version is an implementation decision.',
+    'Necessary supporting work does not automatically require another approval round; apply the existing scope and authorization rules.',
+  ]);
+});
+
+test('completion summaries retain direct evidence and material limitations', () => {
+  reportLimits();
+  contains('verification', ['Distinguish those checks from broader regression checks', 'Do not invent an exhaustive list of every possible unrun check.']);
+});
+
+test('moving verification limitations out of the completion report is detected', () => {
+  reportLimits();
+  const mutated = { ...files, verification: files.verification.replace(
+    'Include material verification limitations before user review, even if they appeared in progress updates or will appear in the commit record.',
+    'Leave verification limitations for the commit record and report only totals now.',
+  ) };
+  assert.throws(() => reportLimits(mutated), /before user review/);
+});
+
+test('finalization resolves the requested task across an intervening task', () => {
+  finalizationTarget();
+  contains('discovery', ['For finalization, resolve the task the user selected, which may be an earlier task resumed after intervening work.']);
+  assert.doesNotMatch(files.finalization, /Use evidence from the latest task boundary/);
+  contains('finalization', ['Preserve unrelated staged and unstaged work']);
+});
+
+test('assuming all remaining changes belong to the latest task is detected', () => {
+  finalizationTarget();
+  const mutated = { ...files, finalization: files.finalization.replace(
+    'Do not assume it is the most recently discussed task or that it owns all remaining changes.',
+    'Finalize the most recent task and include all remaining changes.',
+  ) };
+  assert.throws(() => finalizationTarget(mutated), /all remaining changes/);
+});
+
+test('completion-only recovery also binds the brief to the requested task', () => {
+  contains('verification', [
+    'Resolve which task the user wants reported before recovering its brief; it may be an earlier task resumed after intervening work.',
+  ]);
+  contains('verification', ['Completion-only sessions use these reporting rules without needing to load development solely to report results.']);
+});

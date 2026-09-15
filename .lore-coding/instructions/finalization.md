@@ -10,7 +10,7 @@ Loading this module is not authorization. If only a record is requested, prepare
 
 ## Recover the task evidence
 
-Use evidence from the latest task boundary, material decisions and assumptions retained during work, relevant repository history, and the final diff. Do not summarize the whole conversation or include every intermediate step.
+Identify the task the user is asking to finalize from the request and available context. Do not assume it is the most recently discussed task or that it owns all remaining changes. Ask only when the target or authorized change set remains ambiguous after checking available context. Use that task's boundaries, retained decisions and assumptions, relevant history, and task-specific diff. Do not summarize the whole conversation or include every intermediate step.
 
 Recover the latest supported task brief and its material revisions from the conversation or existing task record. For older tasks or unavailable briefs, establish the supported requirements from the request and retained evidence; do not invent an earlier agreement from the final diff. Disclose material gaps and use the existing clarification rules when they block finalization.
 

@@ -59,7 +59,7 @@ Claims that a reconsideration condition has occurred require relevant evidence. 
 
 ### Decision-oriented completion reports
 
-Recover the latest task brief and material revisions from the task conversation or existing task record. If no brief exists or it is unavailable, recover supported requirements from the user's request and retained evidence, and disclose material gaps. Do not infer prior agreement from the final diff or treat an incomplete summary as permission to omit a requirement. Completion-only sessions use these reporting rules without needing to load development solely to report results.
+Resolve which task the user wants reported before recovering its brief; it may be an earlier task resumed after intervening work. Recover the latest task brief and material revisions from the task conversation or existing task record. If no brief exists or it is unavailable, recover supported requirements from the user's request and retained evidence, and disclose material gaps. Do not infer prior agreement from the final diff or treat an incomplete summary as permission to omit a requirement. Completion-only sessions use these reporting rules without needing to load development solely to report results.
 
 Compare the result with those supported requirements, not just the list of changed files or commands. Cover what matters to the user's review:
 
@@ -67,6 +67,8 @@ Compare the result with those supported requirements, not just the list of chang
 - evidence for material outcomes and preservation requirements;
 - material deviations, failures, and unverified acceptance conditions;
 - any concrete review action or unresolved decision, with relevant options, consequences, and a recommendation when supported.
+
+Identify the evidence directly supporting the main outcome and important preservation requirements. Distinguish those checks from broader regression checks; report only what each actually exercised. Test totals may supplement but must not replace that explanation. Include material verification limitations before user review, even if they appeared in progress updates or will appear in the commit record. Focus on limits affecting acceptance, required validation, or the scope of the claims, not an exhaustive list of unrelated unrun checks.
 
 Distinguish implementation completeness from verification coverage. Do not describe an unmet or unverified condition as satisfied. For example, working selector tests do not establish browser appearance. Attribute user-performed checks to the user rather than implying independent verification.
 

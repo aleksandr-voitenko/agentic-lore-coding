@@ -19,6 +19,8 @@ After sufficient discovery and before implementation, state or reference a conci
 - **Boundaries:** important exclusions and limits on the work.
 - **Acceptance evidence:** how the changed and preserved behavior will be assessed; these are planned checks, not results already obtained.
 
+These four categories define the material content to cover, not mandatory headings. Concise prose must still communicate every category that matters to the task.
+
 The brief summarizes the user's request and verified applicable requirements; it is not a new source of authority. An omission or mistaken interpretation in the brief does not override those sources. Keep unresolved interpretations in the assumptions process; do not invent exclusions or narrower success criteria.
 
 Prefer behavioral or contractual preservation requirements over arbitrary file-edit restrictions. Current implementation alone does not establish intended behavior. Listing selected invariants does not waive the obligation to avoid unrelated regressions. An exclusion does not excuse supporting work needed to meet the task's requirements.
@@ -27,7 +29,9 @@ The brief does not replace or delay the initial standalone `Assumptions:` block.
 
 ### Implementation plan and revisions
 
-Separate the task brief from the implementation approach. Before substantial changes, summarize the implementation plan: relevant current behavior and history, the approach to meeting the brief, important alternatives, verification strategy, and unresolved questions. Ask for missing task context when no safe assumption is supported. For bug fixes, include a test-gap hypothesis and the applicable red-green regression strategy.
+Separate the task brief from the implementation approach. When an inherited requirement materially affects the work, identify its source and distinguish the requirement from the chosen solution. For example, preserving saved replay outcomes is a requirement; introducing a new replay version is an implementation decision. Necessary supporting work does not automatically require another approval round; apply the existing scope and authorization rules.
+
+Before substantial changes, summarize the implementation plan: relevant current behavior and history, the approach to meeting the brief, important alternatives, verification strategy, and unresolved questions. Ask for missing task context when no safe assumption is supported. For bug fixes, include a test-gap hypothesis and the applicable red-green regression strategy.
 
 Use observable outcomes to guide implementation, tests, manual checks, and the final task record, rather than implementation-only goals. Changing an implementation approach does not by itself change the task's acceptance conditions.
 
