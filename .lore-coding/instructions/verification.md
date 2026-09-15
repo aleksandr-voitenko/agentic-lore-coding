@@ -6,6 +6,8 @@ Read before planning verification, implementing a change, running checks, or rep
 
 For each important behavior introduced, changed, fixed, or intentionally preserved, plan at least one matching verification step. Prefer automated behavioral tests when the project supports them. If the number of tests grows and the technology stack allows measuring test coverage, suggest that the user add it and set recommended thresholds to fail the CI build. Do not treat a coverage percentage as proof of correctness or meaningful assertions.
 
+Use the supported task outcomes and preservation requirements in the brief to organize verification. A passing check supports only the behavior it actually exercises. Missing acceptance evidence remains a gap; do not silently drop the requirement or call it inapplicable merely because a check is unavailable.
+
 Use deterministic controls for randomness, timers, generated data, concurrency, retries, and asynchronous behavior when practical. Test observable behavior rather than the private implementation. Prefer complete meaningful output comparisons when they give clearer failures.
 
 ## Bug investigation and regression tests
@@ -54,6 +56,21 @@ Keep behavior-to-evidence notes available for review and finalization, including
 Do not bypass, remove, or alter guards unless the task explicitly requires it and the reason is understood and documented. Report unresolved failures and whether the task is safe to proceed.
 
 Claims that a reconsideration condition has occurred require relevant evidence. Recording a future condition does not require implementing or testing an out-of-scope feature.
+
+### Decision-oriented completion reports
+
+Recover the latest task brief and material revisions from the task conversation or existing task record. If no brief exists or it is unavailable, recover supported requirements from the user's request and retained evidence, and disclose material gaps. Do not infer prior agreement from the final diff or treat an incomplete summary as permission to omit a requirement. Completion-only sessions use these reporting rules without needing to load development solely to report results.
+
+Compare the result with those supported requirements, not just the list of changed files or commands. Cover what matters to the user's review:
+
+- what was delivered relative to the brief, and whether the result is complete or partial;
+- evidence for material outcomes and preservation requirements;
+- material deviations, failures, and unverified acceptance conditions;
+- any concrete review action or unresolved decision, with relevant options, consequences, and a recommendation when supported.
+
+Distinguish implementation completeness from verification coverage. Do not describe an unmet or unverified condition as satisfied. For example, working selector tests do not establish browser appearance. Attribute user-performed checks to the user rather than implying independent verification.
+
+Do not invent a decision to fill a template or offload routine engineering judgment. Raise blocking or scope-changing decisions when discovered, not only at completion. It is valid to report that no product decision is outstanding. These are content requirements, not mandatory headings or a fixed status vocabulary. Scale the report to the task and preserve the assumption-disclosure rules below; reporting a brief does not replace them.
 
 ### Assumptions in completion reports
 

@@ -28,6 +28,8 @@ When an entry depends on a particular decision, add a short source pointer such 
 
 Preserve decision context and qualifications needed to understand applicability. Summarization and compaction must not turn conditional choices into unconditional rules.
 
+A task brief is temporary task context, not a mandatory memory entry. A task-specific exclusion or preservation requirement does not automatically become repository-wide policy. Retain it in memory only when it represents durable, verified project knowledge, with its actual scope and qualifications; for example, "no new dependency in this task" does not mean "never add dependencies."
+
 Before the task record exists, use available source anchors and retained task evidence. Add its pointer during authorized finalization when useful; do not require or invent a future Lore ID or create a commit solely to supply one.
 
 ## Reconcile task-relevant memory
