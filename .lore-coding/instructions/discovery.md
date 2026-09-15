@@ -4,7 +4,7 @@ Read before substantive repository investigation, review, or planning. This modu
 
 ## Establish scope and task context
 
-Identify the user's question or bounded task, the relevant subsystem, and whether work is read-only or implementation is authorized. `Start a new task` starts a new boundary even within an existing conversation. For finalization, evidence belongs to that boundary plus relevant historical context, not the entire conversation. When the user starts a task with `Start a new task: ...`, use the text after the colon to infer a draft subject and task type.
+Identify the user's question or bounded task, the relevant subsystem, and whether work is read-only or implementation is authorized. `Start a new task` starts a new boundary even within an existing conversation. For finalization, resolve the task the user selected, which may be an earlier task resumed after intervening work. Evidence belongs to that task's boundaries plus relevant historical context, not automatically the latest task or the entire conversation. When the user starts a task with `Start a new task: ...`, use the text after the colon to infer a draft subject and task type.
 
 Do not convert a vague, contradictory, joke-like, or cross-domain request into an invented feature. If the request does not fit the product, explain the inconsistency, offer one or two plausible interpretations, and ask for clarification. A cheap implementation does not make an assumption safe.
 
@@ -82,4 +82,4 @@ Preserve decisions whose basis still applies. If rationale or relevant history i
 
 ## Transition out of discovery
 
-If evidence makes the requested approach incomplete, misleading, or unsuitable, explain the discovery, realistic options, and recommendation before proceeding. Before forming an implementation plan, making edits, or reviewing code, architecture, tests, configuration, or documentation, load `.lore-coding/instructions/development.md`. Load `.lore-coding/instructions/verification.md` before planning or executing checks or implementing a change. Merely reaching the end of discovery does not activate those operations.
+If evidence makes the requested approach incomplete, misleading, or unsuitable, explain the discovery, realistic options, and recommendation before proceeding. Before preparing or revising a task brief, forming an implementation plan, making edits, or reviewing code, architecture, tests, configuration, or documentation, load `.lore-coding/instructions/development.md`. Load `.lore-coding/instructions/verification.md` before planning or executing checks or implementing a change. Merely reaching the end of discovery does not activate those operations.
