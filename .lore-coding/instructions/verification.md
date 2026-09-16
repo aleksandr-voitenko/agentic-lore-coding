@@ -47,6 +47,14 @@ A check is expected when the repository documentation, scripts, task type, chang
 
 In a final task record, omit routine passing checks unless the task is about that check/tooling, the check is the only meaningful verification, or its outcome affected the task. Include failed checks and expected checks not run, with reasons. Starting a server or receiving HTTP 200 is meaningful only when it actually proves a relevant behavior.
 
+### Failed checks and diagnostic reruns
+
+A rerun under different conditions provides evidence for that rerun; it does not erase a failure under the repository's expected validation conditions. When changing worker count, test selection, environment, timeouts, or other relevant conditions, record what changed and whether the expected check remains unresolved. A passing isolated or reduced-concurrency run alone does not establish that the original required check passes.
+
+Distinguish observed failures from suspected causes. Do not call a failure pre-existing or unrelated to the patch without supporting evidence. An unchanged file path alone does not establish either conclusion. A comparable unchanged-baseline run can show that a failure also occurs there; it does not by itself prove the patch has no effect. When evidence is insufficient, state the uncertainty.
+
+Diagnostic reruns do not authorize weakening checks or unrelated repairs; follow the existing scope and authorization rules. A later successful run under the expected conditions establishes a pass for that run. Preserve earlier failure evidence and disclose unresolved intermittency or uncertainty rather than claiming an unestablished fix.
+
 ## Honest evidence and completion reports
 
 Only report tests, builds, migrations, browser/manual checks, or user verification actually executed and observed. Read command output and wait for completion. Report timeouts, interruption, missing tools, sandbox restrictions, unavailable services, and their impact instead of silently treating them as success.
@@ -69,6 +77,8 @@ Compare the result with those supported requirements, not just the list of chang
 - any concrete review action or unresolved decision, with relevant options, consequences, and a recommendation when supported.
 
 Identify the evidence directly supporting the main outcome and important preservation requirements. Distinguish those checks from broader regression checks; report only what each actually exercised. Test totals may supplement but must not replace that explanation. Include material verification limitations before user review, even if they appeared in progress updates or will appear in the commit record. Focus on limits affecting acceptance, required validation, or the scope of the claims, not an exhaustive list of unrelated unrun checks.
+
+When shortening the report, preserve direct acceptance evidence and any unresolved required-validation failure. State whether the expected check passed, remains failing, or was not completed, and identify changed-condition successes separately.
 
 Distinguish implementation completeness from verification coverage. Do not describe an unmet or unverified condition as satisfied. For example, working selector tests do not establish browser appearance. Attribute user-performed checks to the user rather than implying independent verification.
 
