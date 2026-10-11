@@ -88,7 +88,7 @@ The Windows task is not a single example. In the projects where I use Lore Codin
 These excerpts only illustrate the workflow. The implementation and verification still matter.
 
 To explore the approach, you can check out the [Classic Games](https://github.com/aleksandr-voitenko/lore-coding-demo-classic-games) demo project and its history. Read the Lore commits on your own to get the idea; at the same time, you can also clone the repository and write a prompt like this and observe your agent logs:
-> In the Asteroids game, asteroids do not collide. When they collide, the effect must be as they received damage, but player does not get any score.
+> In the Asteroids game, asteroids currently do not collide with each other. When they collide, they should take damage as if they had been hit, but the player should not receive any points.
 
 Give it a try.
 
