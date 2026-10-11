@@ -114,9 +114,9 @@ And you are absolutely right! Everything comes at a price.
 
 - **History operations need care.** Normal merges and rebases are usable when task records and links remain intact. Squash-style merges that collapse several Lore tasks into one record are discouraged. Cherry-picks can leave references pointing to records missing from the destination branch. It's worth mentioning that the supplied tools help diagnose whether Lore's structure is damaged.
 
-- **The Lore is not absolute truth.** Records may be inaccurate or out-of-date, and an agent may pull the incorrect context. The protocol requires checking important historical claims against current evidence, but those checks still depend on the agent and the review process. A well-formatted record is not automatically a correct one.
+- **The Lore is not absolute truth.** Records may be inaccurate or out-of-date, and an agent may pull the incorrect context. The protocol requires checking important historical claims against current evidence, but those checks still depend on the agent and the review process.
 
-- For the best results, changes should be atomic: one small improvement at a time. Whether or not you use Lore Coding, this approach will benefit your project. Do not try to create a clone of your favourite social network in one commit.
+- For the best results, changes should be atomic: one small improvement at a time. Whether or not you use Lore Coding, this approach will benefit your project. Do not try to create a clone of your favourite social network in one Lore commit.
 
 The goal is not to make an agent remember everything. It is to make each new task begin with the context that matters and leave a useful record for the next one.
 
