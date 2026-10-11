@@ -92,6 +92,8 @@ To explore the approach, you can check out the [Classic Games](https://github.co
 
 Give it a try.
 
+Another open-source project that uses Agentic Lore Coding is [AI Agents Toolbox](https://github.com/aleksandr-voitenko/ai-agents-toolbox). You can likely make your agents more productive by equipping them with additional tools they can use while working on tasks.
+
 ## Practical benefits
 
 - Lore preserves why the code was written that way. Looking up the source code will tell you its function, yet an option discarded or an amendment made during the discussion might not make it into the code at all. Lore Coding makes recording those reasons part of the task, so later agents can recover the intent before deciding what to change.
@@ -317,7 +319,7 @@ Several projects address the same problems from different directions. Some captu
 
 ## Project status
 
-Agentic Lore Coding is an experimental development protocol.
+Agentic Lore Coding is still an experimental development protocol, but it has already demonstrated practical benefits in several real-world projects.
 
 It is intended to be practical rather than academic: simple enough to use with ordinary Git and current AI coding agents, but structured enough to preserve meaningful project intent over time.
 
