@@ -149,6 +149,8 @@ Commit.
 Repeat.
 Profit!
 
+It's important to mention that this process can be automated using subagents. A supervising agent can break down complex work into a set of tasks and hand them off to subagents. Each subagent starts with a fresh context, executes its assigned task, and returns a lore description. The supervising agent then verifies the completed work and commits the changes. More on this later.
+
 ## The proposed approach
 
 Lore Coding uses a set of ideas that each have value on their own, but become especially powerful when used together:
