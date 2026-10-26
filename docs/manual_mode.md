@@ -4,6 +4,8 @@
 
 The sequence of prompts and outputs below will help you get the idea. I would strongly encourage you to create a toy project to see how it works in action.
 
+The dialogue is a historical walkthrough, and some records are more detailed than current guidance recommends. For new messages, follow [proportionate detail](../.lore-coding/references/commit-format.md#proportionate-detail) and the [compact examples](../.lore-coding/references/commit-format.md#complete-examples). Retain material evidence and limitations; omit incidental setup history and unrelated unrun checks.
+
 ### Task 1. Initial commit
 ---
 It is assumed that you copied matching versions of the Lore Coding `AGENTS.md` file and the entire `.lore-coding/` directory into your project root, set up the commit validation hook, and are ready to start your journey.

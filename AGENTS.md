@@ -1,4 +1,4 @@
-<!-- Agentic Lore Coding v24 -->
+<!-- Agentic Lore Coding v25 -->
 
 # Agentic Lore Coding
 

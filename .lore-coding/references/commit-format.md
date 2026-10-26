@@ -26,6 +26,14 @@ The body has exactly these non-empty sections, in this order: `Context:`, `Imple
 
 End with one required `Lore-ID:` and any useful `Lore-Link:` trailers. Trailers form one contiguous final block; no free-form text follows them. Omit links only when no historical task provides useful context.
 
+## Proportionate detail
+
+Scale the record to the change's meaningful complexity, consequences, and uncertainty, rather than lines changed or effort spent. For straightforward tasks, one short sentence each in `Context:` and `Implementation:` and one or two sentences in `Verification:` normally suffice. Expand only to preserve material rationale, constraints, behavior, evidence, or unresolved limitations; those details should make the need for a longer record clear.
+
+Treat the section guidance as applicable content to select, not a checklist to fill. State each fact once in its most useful section, repeating it only to connect a requirement with evidence or explain a historical relationship. Prefer clear, complete statements over dense abbreviations. Remove generic assurances, routine process narration, and repeated explanations from linked records, while keeping essential context understandable in this message.
+
+Shortening the record does not reduce required investigation, verification, or final review. Apply the evidence-selection rules under [Verification](#verification) when deciding which check results and limitations belong in the record.
+
 ## Task types
 
 Use the type that best describes the task's primary purpose, not incidental supporting work. Prefer the most specific accurate type.
@@ -114,7 +122,9 @@ Good: deterministic tests cover timed-food placement beside safe obstacle cells,
 
 Weak: a list of `npm test`, `npm run build`, and server startup with no behavior or outcomes.
 
-Never copy example counts as real results. Include failures, expected checks not run, and their reasons/impact. Omit routine passing lint/build/format/smoke checks unless the task concerns them, they are the only meaningful verification, or they affected the task. Do not list every imaginable unrun check. A standard check does not replace acceptance evidence. Put assumption-related checks here.
+Never copy example counts as real results. Include unresolved failures and limitations affecting acceptance, expected validation, or the scope of a claim; identify expected checks not completed and their reasons/impact. Retain a resolved failure when it explains the defect, a material decision, a reproduction requirement, or remaining uncertainty. Omit resolved incidental setup problems only when the final evidence applies to the task's final state and no material uncertainty remains. A success under changed conditions must not conceal an unresolved expected check.
+
+Omit unrelated unrun checks. Omit routine passing lint/build/format/smoke checks unless the task concerns them, they are the only meaningful verification, or they affected the task. An unlisted check is unspecified: omission makes no claim that it passed, failed, or was not run. A standard check does not replace acceptance evidence. Put assumption-related checks here.
 
 ## Type-specific reminders
 
@@ -125,3 +135,47 @@ For `Bug fix:`, include incorrect and expected behavior, cause when known, test-
 For `Formatting:` and `Mechanical:`, state that no behavior change is intended. Use `.git-blame-ignore-revs` for large blame-obscuring changes when available. For `Dependency:`, describe changed packages, compatibility work, and affected behavior verification. For `Database:`, cover migration, rollback, existing data, and new data where practical.
 
 For `CI:` and `Build:`, verify the affected workflow, command, or produced output. For `Test:`, name the risk and exact command/result. For `Docs:`, state that no runtime behavior changed unless documentation generation affects runtime artifacts. For `Security:`, `Performance:`, and `Accessibility:`, provide evidence specific to the concern.
+
+## Complete examples
+
+These examples are illustrative; their IDs, commands, and results are not evidence of checks performed in this repository. Actual records must use verified task evidence and useful reachable Lore links when available.
+
+### Straightforward wording change
+
+The final browser check covers the changed page. An earlier occupied-port startup attempt is omitted because it no longer affects that evidence. No full end-to-end run was expected for this example task.
+
+```text
+Improvement(home): Rename related-words heading to Discover
+
+Context:
+Avoid two homepage sections beginning with Explore.
+
+Implementation:
+Change the related-words heading to Discover; align its test assertion and README.
+
+Verification:
+npm run test -- src/components/home/wordgarden-home.test.tsx: 7 passed, including label and section-order checks.
+Chromium at 390×844, 768×1024, and 1365×768: readable label, no wrapping or horizontal overflow. Diff: three text replacements.
+
+Lore-ID: LC-20261026-A1B2
+```
+
+### Small fix with a material verification gap
+
+The tenant condition is a small code change, but its security consequence and incomplete expected validation justify the extra detail.
+
+```text
+Bug fix(reports): Enforce tenant ownership on downloads
+
+Context:
+Report lookup accepted IDs from other tenants; prior tests used only same-tenant IDs. Reports must be accessible only to their owning tenant.
+
+Implementation:
+Constrain downloads by the authenticated tenant and retain the existing not-found response for inaccessible reports. Add regression cases for same-tenant, cross-tenant, and missing reports.
+
+Verification:
+node --test test/report-access.test.mjs: the cross-tenant regression failed before the fix; all 6 cases passed afterward.
+Required database integration checks could not run because the test database was unavailable; ownership enforcement against the real database remains unverified.
+
+Lore-ID: LC-20261026-C3D4
+```

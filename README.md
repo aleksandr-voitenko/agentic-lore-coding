@@ -158,7 +158,7 @@ It's important to mention that this process can be automated using subagents. A 
 Lore Coding uses a set of ideas that each have value on their own, but become especially powerful when used together:
 
 - **Atomic changes.** Each meaningful change is treated as a single task, an atomic unit of development effort.
-- **Issue-aware commit messages.** Normal commit history usually briefly answers what changed. Lore Coding enhances Git commit messages by adding a mandatory set of sections that describe the work in great detail: why code changed, how it changed, how it was verified.
+- **Issue-aware commit messages.** Lore Coding adds structured sections explaining why code changed, how it changed, and how it was verified. Detail scales with the task's meaningful complexity, consequences, and uncertainty; straightforward changes need only a few short sentences.
 - **Intent graph.** Lore Coding turns structured task commits and repository history into an intent graph: a long-lasting record of earlier decisions that matter. This is achieved by introducing a special links format that agents follow during codebase exploration. Important decisions preserve what was chosen and why, their scope, and identified conditions that would justify reviewing them as the project evolves.
 - **Hierarchical working memory.** Lore Coding uses `README.md` and `MEMORY.md` files for different audiences:
   - `README.md` explains the project for humans

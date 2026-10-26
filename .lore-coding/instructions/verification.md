@@ -45,7 +45,7 @@ Standard development checks are expected during development, but they are not a 
 
 A check is expected when the repository documentation, scripts, task type, changed files, or user request make it the normal validation path. Do not invent an exhaustive list of every possible unrun check.
 
-In a final task record, omit routine passing checks unless the task is about that check/tooling, the check is the only meaningful verification, or its outcome affected the task. Include failed checks and expected checks not run, with reasons. Starting a server or receiving HTTP 200 is meaningful only when it actually proves a relevant behavior.
+In a final task record, omit routine passing checks unless the task is about that check/tooling, the check is the only meaningful verification, or its outcome affected the task. Include unresolved failures of expected checks, other material failures, and expected checks not completed, with reasons and impact. Starting a server or receiving HTTP 200 is meaningful only when it actually proves a relevant behavior. Apply [Proportionate detail](../references/commit-format.md#proportionate-detail) when selecting evidence for the record; do not load the authoring specification merely to plan or run checks.
 
 ### Failed checks and diagnostic reruns
 
@@ -53,11 +53,11 @@ A rerun under different conditions provides evidence for that rerun; it does not
 
 Distinguish observed failures from suspected causes. Do not call a failure pre-existing or unrelated to the patch without supporting evidence. An unchanged file path alone does not establish either conclusion. A comparable unchanged-baseline run can show that a failure also occurs there; it does not by itself prove the patch has no effect. When evidence is insufficient, state the uncertainty.
 
-Diagnostic reruns do not authorize weakening checks or unrelated repairs; follow the existing scope and authorization rules. A later successful run under the expected conditions establishes a pass for that run. Preserve earlier failure evidence and disclose unresolved intermittency or uncertainty rather than claiming an unestablished fix.
+Diagnostic reruns do not authorize weakening checks or unrelated repairs; follow the existing scope and authorization rules. A later successful run under the expected conditions establishes a pass for that run. Retain earlier failure evidence during work and disclose unresolved intermittency or uncertainty rather than claiming an unestablished fix. A resolved failure remains relevant to the final record when it explains the defect, the solution, reproducibility, or remaining risk.
 
 ## Honest evidence and completion reports
 
-Only report tests, builds, migrations, browser/manual checks, or user verification actually executed and observed. Read command output and wait for completion. Report timeouts, interruption, missing tools, sandbox restrictions, unavailable services, and their impact instead of silently treating them as success.
+Only report tests, builds, migrations, browser/manual checks, or user verification actually executed and observed. Read command output and wait for completion. Report timeouts, interruption, missing tools, sandbox restrictions, unavailable services, and their impact when they affect progress or verification; never treat an interrupted or unavailable check as a success. Resolved incidental startup or tooling trouble need not appear in completion reports or final task records when the final-state evidence is equally valid and no material limitation remains.
 
 Keep behavior-to-evidence notes available for review and finalization, including commands, observed outcomes, and limitations. A previous task's reported result is historical evidence, not a check performed in this task. Distinguish static structural checks from live agent behavior or end-to-end tests.
 
